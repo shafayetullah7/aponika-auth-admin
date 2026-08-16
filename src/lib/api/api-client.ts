@@ -3,27 +3,31 @@ import { ApiError } from "./types";
 
 export interface FetchOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
+  strict?: boolean;
+  unwrapData?: boolean;
 }
 
-export const buildURL = (
-  baseURL: string,
-  endpoint: string,
-  params?: Record<string, string | number | boolean | undefined>,
-): string => {
-  const base = baseURL.endsWith("/") ? baseURL : `${baseURL}/`;
-  const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
-  const url = new URL(path, base);
+function getCookieFromStr(cookieStr: string, name: string): string | undefined {
+  if (!cookieStr) return undefined;
+  const regex = new RegExp(`(?:^|;\\s*)${name}=([^;]*)`);
+  const match = cookieStr.match(regex);
+  return match ? match[1] : undefined;
+}
 
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.append(key, String(value));
-      }
-    });
+function getUniversalCookie(name: string, headers?: Headers): string | undefined {
+  if (typeof window !== "undefined") {
+    return getCookieFromStr(document.cookie, name);
   }
 
-  return url.toString();
-};
+  if (headers) {
+    const cookieHeader = headers.get("cookie");
+    if (cookieHeader) {
+      return getCookieFromStr(cookieHeader, name);
+    }
+  }
+
+  return undefined;
+}
 
 function getRequestTimeout(): number {
   return import.meta.env.SSR
@@ -45,65 +49,217 @@ function createTimeoutSignal(userSignal?: AbortSignal | null): AbortSignal {
   return userSignal;
 }
 
-async function injectSsrCookies(headers: Headers): Promise<void> {
-  if (!import.meta.env.SSR || headers.has("cookie")) {
-    return;
+export const buildURL = (
+  endpoint: string,
+  params?: Record<string, string | number | boolean | undefined>,
+): string => {
+  const baseURL = config.api.baseUrl;
+  const base = baseURL.endsWith("/") ? baseURL : `${baseURL}/`;
+  const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+  const url = new URL(path, base);
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        url.searchParams.append(key, String(value));
+      }
+    });
   }
 
-  try {
-    const { getRequestEvent } = await import("solid-js/web");
-    const event = getRequestEvent();
-    const cookie = event?.request.headers.get("cookie");
-    if (cookie) {
-      headers.set("cookie", cookie);
-    }
-  } catch {
-    // SSR context unavailable outside a request handler.
-  }
-}
+  return url.toString();
+};
 
-async function executeFetch<T>(
-  url: string,
+let isRefreshing = false;
+let refreshPromise: Promise<Response> | null = null;
+let refreshAttempts = 0;
+const MAX_REFRESH_ATTEMPTS = 1;
+
+export async function fetcher<T>(
+  endpoint: string,
   options: FetchOptions = {},
 ): Promise<T> {
-  const { params: _params, signal, ...init } = options;
-  const headers = new Headers(init.headers);
+  const {
+    params,
+    strict = true,
+    unwrapData = true,
+    signal,
+    ...fetchOptions
+  } = options;
+  const url = buildURL(endpoint, params);
 
-  if (!headers.has("Content-Type") && !(init.body instanceof FormData)) {
+  const headers = new Headers(fetchOptions.headers || {});
+  if (!headers.has("Content-Type") && !(fetchOptions.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
-  await injectSsrCookies(headers);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let event: any;
+  if (import.meta.env.SSR) {
+    try {
+      const { getRequestEvent } = await import("solid-js/web");
+      event = getRequestEvent();
+      if (event && !headers.has("cookie")) {
+        const cookie = event.request.headers.get("cookie");
+        if (cookie) {
+          headers.set("cookie", cookie);
+        }
+      }
+    } catch {
+      // Outside request context.
+    }
+  }
+
+  const method = fetchOptions.method?.toUpperCase() || "GET";
+  const stateChangingMethods = ["POST", "PUT", "DELETE", "PATCH"];
+  if (stateChangingMethods.includes(method)) {
+    const xsrfToken = getUniversalCookie("xsrf-token", headers);
+    if (xsrfToken) {
+      headers.set("X-XSRF-TOKEN", xsrfToken);
+    }
+  }
+
+  const makeRequest = (opts: RequestInit, requestHeaders: Headers) =>
+    fetch(url, {
+      ...opts,
+      headers: requestHeaders,
+      credentials: "include",
+      signal: createTimeoutSignal(signal),
+    });
 
   try {
-    const response = await fetch(url, {
-      credentials: "include",
+    let response = await makeRequest(fetchOptions, headers);
+
+    const isAuthRoute =
+      endpoint.startsWith("/admin/auth/login") ||
+      endpoint.startsWith("/admin/auth/refresh") ||
+      endpoint.startsWith("/admin/auth/register");
+
+    if (response.status === 401 && strict && !isAuthRoute) {
+      if (!isRefreshing && refreshAttempts < MAX_REFRESH_ATTEMPTS) {
+        isRefreshing = true;
+        refreshAttempts++;
+        refreshPromise = fetch(`${config.api.baseUrl}/admin/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        }).finally(() => {
+          isRefreshing = false;
+          refreshPromise = null;
+        });
+      }
+
+      if (refreshPromise) {
+        const refreshResponse = await refreshPromise;
+
+        if (refreshResponse?.ok) {
+          refreshAttempts = 0;
+          const retryHeaders = new Headers(headers);
+          const newXsrfToken = getUniversalCookie("xsrf-token", retryHeaders);
+          if (newXsrfToken && stateChangingMethods.includes(method)) {
+            retryHeaders.set("X-XSRF-TOKEN", newXsrfToken);
+          }
+          response = await makeRequest(fetchOptions, retryHeaders);
+        } else {
+          refreshAttempts = 0;
+          if (import.meta.env.SSR) {
+            const { redirect } = await import("@solidjs/router");
+            throw redirect("/login");
+          }
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+            return {} as T;
+          }
+        }
+      }
+    }
+
+    if (import.meta.env.SSR && event) {
+      try {
+        const { appendResponseHeader } = await import("vinxi/http");
+        const isResponseFinished =
+          event.nativeEvent.node.res.headersSent ||
+          event.nativeEvent.node.res.writableEnded;
+
+        if (!isResponseFinished) {
+          let setCookies: string[] = [];
+          const headersAny = response.headers as unknown as {
+            getSetCookie?: () => string[];
+          };
+          if (typeof headersAny.getSetCookie === "function") {
+            setCookies = headersAny.getSetCookie();
+          }
+
+          setCookies.forEach((cookie: string) => {
+            appendResponseHeader(event.nativeEvent, "Set-Cookie", cookie);
+          });
+        }
+      } catch {
+        // Cookie sync is best-effort during SSR.
+      }
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const message =
+        errorData &&
+        typeof errorData === "object" &&
+        "message" in errorData &&
+        typeof errorData.message === "string"
+          ? errorData.message
+          : `API Error: ${response.status}`;
+      throw new ApiError(message, response.status, errorData);
+    }
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!unwrapData) {
+      return result as T;
+    }
+
+    if (
+      result &&
+      typeof result === "object" &&
+      "success" in result &&
+      "data" in result
+    ) {
+      return result.data as T;
+    }
+
+    return result as T;
+  } catch (error) {
+    if (error instanceof Response || error instanceof ApiError) {
+      throw error;
+    }
+
+    throw new ApiError(
+      error instanceof Error ? error.message : "Network request failed",
+      0,
+    );
+  }
+}
+
+export const api = fetcher;
+
+export async function fetchAbsolute<T>(
+  absoluteUrl: string,
+  options: FetchOptions = {},
+): Promise<T> {
+  const { params: _params, strict: _strict, unwrapData: _unwrap, signal, ...init } =
+    options;
+  const headers = new Headers(init.headers);
+
+  try {
+    const response = await fetch(absoluteUrl, {
       ...init,
       headers,
       signal: createTimeoutSignal(signal),
     });
 
     if (!response.ok) {
-      let body: unknown;
-      try {
-        body = await response.json();
-      } catch {
-        body = undefined;
-      }
-
-      const message =
-        body &&
-        typeof body === "object" &&
-        "message" in body &&
-        typeof body.message === "string"
-          ? body.message
-          : response.statusText || "Request failed";
-
-      throw new ApiError(message, response.status, body);
-    }
-
-    if (response.status === 204) {
-      return undefined as T;
+      throw new ApiError(response.statusText || "Request failed", response.status);
     }
 
     return (await response.json()) as T;
@@ -118,21 +274,3 @@ async function executeFetch<T>(
     );
   }
 }
-
-export async function fetcher<T>(
-  endpoint: string,
-  options: FetchOptions = {},
-): Promise<T> {
-  const { params, ...init } = options;
-  const url = buildURL(config.api.baseUrl, endpoint, params);
-  return executeFetch<T>(url, init);
-}
-
-export async function fetchAbsolute<T>(
-  absoluteUrl: string,
-  options: FetchOptions = {},
-): Promise<T> {
-  return executeFetch<T>(absoluteUrl, options);
-}
-
-export const api = fetcher;

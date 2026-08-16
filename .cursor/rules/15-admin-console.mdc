@@ -11,15 +11,21 @@ This is the **identity platform operator console** — not `byte-forge-admin` (m
 ## Layout
 
 - **Protected routes** use `(protected).tsx` sidebar shell (`AdminSidebar` + main content).
-- **Auth routes** (`/login`) use full-page centered card — no sidebar.
+- **Auth routes** (`/login`, `/register`) use full-page centered card — no sidebar.
+- `(auth).tsx` redirects authenticated users away from auth pages.
 - Nav items live in `~/config/admin-nav.ts`.
+
+## Auth
+
+- API: `~/lib/api/admin-auth.api.ts` via BFF server `action()` calls.
+- Clients API: `~/lib/api/clients.api.ts` via `fetcher` (session cookies + CSRF).
+- Session: `~/lib/auth/session.ts` (`getSession`, `logoutAction`, `useSession`).
+- CSRF: `api-client.ts` sends `X-XSRF-TOKEN` from `xsrf-token` cookie on state-changing requests.
+- Protected routes redirect unauthenticated users to `/login?returnTo=...`.
 
 ## Scope
 
 - Users, OAuth clients, platform roles, audit — yes.
 - Shops, products, orders, campaigns — no.
 
-## Auth (later)
-
-- Protected layout is a **stub** until platform-admin auth is implemented.
-- Do not duplicate end-user self-registration from `aponika-auth-frontend`.
+Do not duplicate end-user self-registration from `aponika-auth-frontend`.

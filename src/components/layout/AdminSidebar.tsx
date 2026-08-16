@@ -1,11 +1,13 @@
 import { A, useLocation } from "@solidjs/router";
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { adminNavItems } from "~/config/admin-nav";
 import { useI18n } from "~/i18n";
+import { logoutAction, useSession } from "~/lib/auth";
 
 export function AdminSidebar() {
   const location = useLocation();
   const { t } = useI18n();
+  const session = useSession();
 
   return (
     <aside class="flex h-full w-60 shrink-0 flex-col border-r border-forest-900 bg-forest-950 text-forest-100">
@@ -34,8 +36,20 @@ export function AdminSidebar() {
           }}
         </For>
       </nav>
-      <div class="border-t border-forest-900 p-4 text-center text-xs text-forest-500">
-        Operator console
+      <div class="border-t border-forest-900 p-4">
+        <Show when={session()}>
+          {(user) => (
+            <p class="mb-3 truncate text-xs text-forest-400">{user().email}</p>
+          )}
+        </Show>
+        <form action={logoutAction} method="post">
+          <button
+            type="submit"
+            class="w-full rounded-lg border border-forest-800 px-3 py-2 text-sm text-forest-200 transition-colors hover:bg-forest-900 hover:text-white"
+          >
+            {t("admin.logout")}
+          </button>
+        </form>
       </div>
     </aside>
   );
