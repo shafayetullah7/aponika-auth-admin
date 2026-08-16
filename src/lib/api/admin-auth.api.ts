@@ -39,9 +39,7 @@ export const adminAuthApi = {
   },
 
   checkAuth(): Promise<AdminUser> {
-    return fetcher<AdminUser>("/admin/auth/check", {
-      strict: false,
-    });
+    return fetcher<AdminUser>("/admin/auth/check");
   },
 
   logout(): Promise<void> {

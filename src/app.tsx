@@ -2,7 +2,8 @@ import { MetaProvider, Title } from "@solidjs/meta";
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense, onMount } from "solid-js";
-import { readStoredLocale } from "~/components/LocaleToggle";
+import { readStoredLocale, ADMIN_LOCALE_STORAGE_KEY } from "~/components/LocaleToggle";
+import { LoadingFallback } from "~/components/ui";
 import { I18nContext, createI18n } from "~/i18n";
 import "./app.css";
 
@@ -10,7 +11,7 @@ export default function App() {
   const i18n = createI18n("en");
 
   onMount(() => {
-    const saved = readStoredLocale();
+    const saved = readStoredLocale(ADMIN_LOCALE_STORAGE_KEY);
     if (saved) {
       i18n.setLocale(saved);
     }
@@ -22,13 +23,7 @@ export default function App() {
         root={(props) => (
           <MetaProvider>
             <Title>Aponika Auth Admin</Title>
-            <Suspense
-              fallback={
-                <div class="flex min-h-screen items-center justify-center">
-                  <div class="h-8 w-8 animate-spin rounded-full border-2 border-forest-600 border-t-transparent" />
-                </div>
-              }
-            >
+            <Suspense fallback={<LoadingFallback />}>
               {props.children}
             </Suspense>
           </MetaProvider>

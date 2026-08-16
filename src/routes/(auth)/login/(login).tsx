@@ -11,19 +11,12 @@ import { ApiHealthStatus } from "~/components/ApiHealthStatus";
 import { Button, Card, FieldGroup, Input, PasswordInput } from "~/components/ui";
 import { adminAuthApi } from "~/lib/api/admin-auth.api";
 import { ApiError } from "~/lib/api/types";
+import {
+  buildAuthPathWithReturnTo,
+  safeReturnTo,
+} from "~/lib/auth/return-to";
 import { useI18n } from "~/i18n";
 import { loginSchema, type LoginFormData } from "~/schemas/login.schema";
-
-function safeReturnTo(value: string | string[] | undefined, fallback = "/"): string {
-  const raw = Array.isArray(value) ? value[0] : value;
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
-    return fallback;
-  }
-  if (raw.startsWith("/login") || raw.startsWith("/register")) {
-    return fallback;
-  }
-  return raw;
-}
 
 const loginAction = action(async (data: LoginFormData & { returnTo?: string }) => {
   "use server";
@@ -86,6 +79,9 @@ export default function AdminLoginPage() {
     });
   };
 
+  const registerHref = () =>
+    buildAuthPathWithReturnTo("/register", searchParams.returnTo);
+
   return (
     <main class="flex min-h-screen items-center justify-center bg-forest-950 p-4">
       <Card class="w-full max-w-md">
@@ -107,7 +103,12 @@ export default function AdminLoginPage() {
 
           <Field name="email">
             {(field, props) => (
-              <FieldGroup label={t("admin.email")} requirement="required" hint={t("admin.emailHint")}>
+              <FieldGroup
+                label={t("admin.email")}
+                requirement="required"
+                hint={t("admin.emailHint")}
+                error={field.error}
+              >
                 <Input
                   {...props}
                   type="email"
@@ -115,6 +116,7 @@ export default function AdminLoginPage() {
                   placeholder="admin@aponika.com"
                   value={field.value || ""}
                   error={field.error}
+                  showErrorMessage={false}
                   disabled={submission.pending}
                 />
               </FieldGroup>
@@ -134,6 +136,8 @@ export default function AdminLoginPage() {
                   placeholder="••••••••"
                   value={field.value || ""}
                   error={field.error}
+                  showPasswordLabel={t("admin.showPassword")}
+                  hidePasswordLabel={t("admin.hidePassword")}
                   disabled={submission.pending}
                 />
               </FieldGroup>
@@ -151,7 +155,7 @@ export default function AdminLoginPage() {
 
         <p class="mt-6 text-center text-sm text-forest-600">
           {t("admin.needAccount")}{" "}
-          <A href="/register" class="font-semibold text-forest-700 hover:text-forest-900">
+          <A href={registerHref()} class="font-semibold text-forest-700 hover:text-forest-900">
             {t("admin.registerLink")}
           </A>
         </p>

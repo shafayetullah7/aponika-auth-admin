@@ -11,4 +11,6 @@ alwaysApply: false
 - `(protected)` group uses sidebar shell — see `15-admin-console.mdc`.
 - Use route-level orchestration; avoid deeply embedding route concerns into generic components.
 - Use `A` links for navigation unless non-router behavior is needed.
-- `returnTo` query param allowed only for post-login redirect.
+- `returnTo` query param: use `~/lib/auth/return-to.ts` (`safeReturnTo`, `buildAuthPathWithReturnTo`).
+- Preserve `returnTo` across login ↔ register and through OTP registration success (`/login?registered=1&returnTo=...`).
+- Session gates use `LoadingFallback` while `useSession()` is pending.

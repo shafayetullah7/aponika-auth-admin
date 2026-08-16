@@ -1,30 +1,36 @@
 import { useI18n, type Locale } from "~/i18n";
 
-const LOCALE_STORAGE_KEY = "aponika-auth-admin-locale";
+export const ADMIN_LOCALE_STORAGE_KEY = "aponika-auth-admin-locale";
 
-export function readStoredLocale(): Locale | null {
+export function readStoredLocale(
+  storageKey: string = ADMIN_LOCALE_STORAGE_KEY,
+): Locale | null {
   if (typeof window === "undefined") {
     return null;
   }
 
-  const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+  const saved = window.localStorage.getItem(storageKey);
   return saved === "en" || saved === "bn" ? saved : null;
 }
 
-export function storeLocale(locale: Locale): void {
+export function storeLocale(
+  locale: Locale,
+  storageKey: string = ADMIN_LOCALE_STORAGE_KEY,
+): void {
   if (typeof window === "undefined") {
     return;
   }
 
-  window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  window.localStorage.setItem(storageKey, locale);
 }
 
-export function LocaleToggle() {
+export function LocaleToggle(props: { storageKey?: string }) {
+  const storageKey = () => props.storageKey ?? ADMIN_LOCALE_STORAGE_KEY;
   const { locale, setLocale } = useI18n();
 
   const select = (next: Locale) => {
     setLocale(next);
-    storeLocale(next);
+    storeLocale(next, storageKey());
   };
 
   return (

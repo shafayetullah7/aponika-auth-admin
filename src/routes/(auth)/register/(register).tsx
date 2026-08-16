@@ -1,10 +1,15 @@
-import { action, useAction, useSubmission, A } from "@solidjs/router";
+import { action, useAction, useSearchParams, useSubmission, A } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { createForm } from "@modular-forms/solid";
 import { z } from "zod";
 import { Button, Card, FieldGroup, Input, PasswordInput } from "~/components/ui";
 import { adminAuthApi } from "~/lib/api/admin-auth.api";
 import { ApiError } from "~/lib/api/types";
+import {
+  appendQueryParam,
+  buildAuthPathWithReturnTo,
+  safeReturnTo,
+} from "~/lib/auth/return-to";
 import { useI18n } from "~/i18n";
 import {
   registerDetailsSchema,
@@ -36,19 +41,22 @@ const requestOtpAction = action(async (data: RegisterDetailsFormData) => {
 }, "admin-register-request-otp");
 
 const completeRegistrationAction = action(
-  async (data: RegisterDetailsFormData & { otp: string }) => {
+  async (data: RegisterDetailsFormData & { otp: string; returnTo?: string }) => {
     "use server";
     await adminAuthApi.completeRegistration({
       ...toRegisterPayload(data),
       otp: data.otp,
     });
-    return { success: true as const, target: "/login?registered=1" };
+    const loginPath = buildAuthPathWithReturnTo("/login", data.returnTo);
+    const target = appendQueryParam(loginPath, "registered", "1");
+    return { success: true as const, target };
   },
   "admin-register-complete",
 );
 
 export default function RegisterPage() {
   const { t } = useI18n();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = createSignal<"details" | "otp">("details");
   const [expiresAt, setExpiresAt] = createSignal<string | null>(null);
   const [errorMessage, setErrorMessage] = createSignal<string | null>(null);
@@ -135,8 +143,14 @@ export default function RegisterPage() {
     }
 
     setErrorMessage(null);
-    completeTrigger({ ...details, otp: values.otp });
+    completeTrigger({
+      ...details,
+      otp: values.otp,
+      returnTo: safeReturnTo(searchParams.returnTo),
+    });
   };
+
+  const loginHref = () => buildAuthPathWithReturnTo("/login", searchParams.returnTo);
 
   return (
     <main class="flex min-h-screen items-center justify-center bg-forest-950 p-4">
@@ -155,15 +169,35 @@ export default function RegisterPage() {
             <div class="grid gap-4 sm:grid-cols-2">
               <DetailsField name="firstName">
                 {(field, props) => (
-                  <FieldGroup label={t("admin.firstName")} requirement="required">
-                    <Input {...props} value={field.value || ""} error={field.error} disabled={requestOtpSubmission.pending} />
+                  <FieldGroup
+                    label={t("admin.firstName")}
+                    requirement="required"
+                    error={field.error}
+                  >
+                    <Input
+                      {...props}
+                      value={field.value || ""}
+                      error={field.error}
+                      showErrorMessage={false}
+                      disabled={requestOtpSubmission.pending}
+                    />
                   </FieldGroup>
                 )}
               </DetailsField>
               <DetailsField name="lastName">
                 {(field, props) => (
-                  <FieldGroup label={t("admin.lastName")} requirement="required">
-                    <Input {...props} value={field.value || ""} error={field.error} disabled={requestOtpSubmission.pending} />
+                  <FieldGroup
+                    label={t("admin.lastName")}
+                    requirement="required"
+                    error={field.error}
+                  >
+                    <Input
+                      {...props}
+                      value={field.value || ""}
+                      error={field.error}
+                      showErrorMessage={false}
+                      disabled={requestOtpSubmission.pending}
+                    />
                   </FieldGroup>
                 )}
               </DetailsField>
@@ -171,16 +205,38 @@ export default function RegisterPage() {
 
             <DetailsField name="userName">
               {(field, props) => (
-                <FieldGroup label={t("admin.userName")} requirement="required">
-                  <Input {...props} value={field.value || ""} error={field.error} disabled={requestOtpSubmission.pending} />
+                <FieldGroup
+                  label={t("admin.userName")}
+                  requirement="required"
+                  error={field.error}
+                >
+                  <Input
+                    {...props}
+                    value={field.value || ""}
+                    error={field.error}
+                    showErrorMessage={false}
+                    disabled={requestOtpSubmission.pending}
+                  />
                 </FieldGroup>
               )}
             </DetailsField>
 
             <DetailsField name="email">
               {(field, props) => (
-                <FieldGroup label={t("admin.email")} requirement="required">
-                  <Input {...props} type="email" autocomplete="email" value={field.value || ""} error={field.error} disabled={requestOtpSubmission.pending} />
+                <FieldGroup
+                  label={t("admin.email")}
+                  requirement="required"
+                  error={field.error}
+                >
+                  <Input
+                    {...props}
+                    type="email"
+                    autocomplete="email"
+                    value={field.value || ""}
+                    error={field.error}
+                    showErrorMessage={false}
+                    disabled={requestOtpSubmission.pending}
+                  />
                 </FieldGroup>
               )}
             </DetailsField>
@@ -197,6 +253,8 @@ export default function RegisterPage() {
                     autocomplete="new-password"
                     value={field.value || ""}
                     error={field.error}
+                    showPasswordLabel={t("admin.showPassword")}
+                    hidePasswordLabel={t("admin.hidePassword")}
                     disabled={requestOtpSubmission.pending}
                   />
                 </FieldGroup>
@@ -215,6 +273,8 @@ export default function RegisterPage() {
                     autocomplete="new-password"
                     value={field.value || ""}
                     error={field.error}
+                    showPasswordLabel={t("admin.showPassword")}
+                    hidePasswordLabel={t("admin.hidePassword")}
                     disabled={requestOtpSubmission.pending}
                   />
                 </FieldGroup>
@@ -240,7 +300,11 @@ export default function RegisterPage() {
           <OtpForm onSubmit={handleOtpSubmit} class="mt-6 space-y-4">
             <OtpField name="otp">
               {(field, props) => (
-                <FieldGroup label={t("admin.otp")} requirement="required">
+                <FieldGroup
+                  label={t("admin.otp")}
+                  requirement="required"
+                  error={field.error}
+                >
                   <Input
                     {...props}
                     inputmode="numeric"
@@ -248,6 +312,7 @@ export default function RegisterPage() {
                     placeholder="123456"
                     value={field.value || ""}
                     error={field.error}
+                    showErrorMessage={false}
                     disabled={completeSubmission.pending}
                   />
                 </FieldGroup>
@@ -267,7 +332,7 @@ export default function RegisterPage() {
 
         <p class="mt-6 text-center text-sm text-forest-600">
           {t("admin.haveAccount")}{" "}
-          <A href="/login" class="font-semibold text-forest-700 hover:text-forest-900">
+          <A href={loginHref()} class="font-semibold text-forest-700 hover:text-forest-900">
             {t("admin.signIn")}
           </A>
         </p>

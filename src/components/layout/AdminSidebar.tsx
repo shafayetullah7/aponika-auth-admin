@@ -1,11 +1,10 @@
-import { A, useLocation } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { adminNavItems } from "~/config/admin-nav";
 import { useI18n } from "~/i18n";
 import { logoutAction, useSession } from "~/lib/auth";
+import { AdminNavLink } from "./AdminNavLink";
 
 export function AdminSidebar() {
-  const location = useLocation();
   const { t } = useI18n();
   const session = useSession();
 
@@ -15,26 +14,7 @@ export function AdminSidebar() {
         <span class="text-lg font-bold text-white">{t("admin.title")}</span>
       </div>
       <nav class="flex-1 space-y-1 p-3">
-        <For each={adminNavItems}>
-          {(item) => {
-            const active = () =>
-              item.href === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(item.href);
-            return (
-              <A
-                href={item.href}
-                class="block rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-                classList={{
-                  "bg-forest-800 text-white": active(),
-                  "text-forest-300 hover:bg-forest-900 hover:text-white": !active(),
-                }}
-              >
-                {t(item.labelKey)}
-              </A>
-            );
-          }}
-        </For>
+        <For each={adminNavItems}>{(item) => <AdminNavLink item={item} />}</For>
       </nav>
       <div class="border-t border-forest-900 p-4">
         <Show when={session()}>

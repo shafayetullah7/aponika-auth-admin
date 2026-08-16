@@ -18,12 +18,15 @@ function isErrorResult(
 function HealthStatusBadge(props: {
   result: HealthResult;
   t: ReturnType<typeof useI18n>["t"];
+  class?: string;
 }): JSX.Element {
   const { result, t } = props;
 
   if (isErrorResult(result)) {
     return (
-      <div class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+      <div
+        class={`rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ${props.class ?? ""}`}
+      >
         <span>
           {t("common.apiUnreachable")}
           {result.error instanceof ApiError && result.error.status > 0
@@ -36,7 +39,7 @@ function HealthStatusBadge(props: {
 
   return (
     <div
-      class="rounded-xl px-4 py-3 text-sm"
+      class={`rounded-xl px-4 py-3 text-sm ${props.class ?? ""}`}
       classList={{
         "bg-forest-50 text-forest-700": result.db === "ok",
         "bg-amber-50 text-amber-900": result.db !== "ok",
@@ -51,7 +54,7 @@ function HealthStatusBadge(props: {
   );
 }
 
-export function ApiHealthStatus() {
+export function ApiHealthStatus(props: { class?: string }) {
   const { t } = useI18n();
 
   if (!config.isDev) {
@@ -62,5 +65,11 @@ export function ApiHealthStatus() {
     getHealth().catch((error: unknown) => ({ error })),
   );
 
-  return <>{health() ? <HealthStatusBadge result={health()!} t={t} /> : null}</>;
+  return (
+    <>
+      {health() ? (
+        <HealthStatusBadge result={health()!} t={t} class={props.class} />
+      ) : null}
+    </>
+  );
 }

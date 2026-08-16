@@ -12,14 +12,16 @@ This is the **identity platform operator console** — not `byte-forge-admin` (m
 
 - **Protected routes** use `(protected).tsx` sidebar shell (`AdminSidebar` + main content).
 - **Auth routes** (`/login`, `/register`) use full-page centered card — no sidebar.
-- `(auth).tsx` redirects authenticated users away from auth pages.
-- Nav items live in `~/config/admin-nav.ts`.
+- `(auth).tsx` redirects authenticated users away from auth pages via `safeReturnTo(searchParams.returnTo)`.
+- Nav items live in `~/config/admin-nav.ts` with `icon` + `match: "exact" | "prefix"`.
+- Sidebar links use `AdminNavLink` (icon + label, active state).
 
 ## Auth
 
 - API: `~/lib/api/admin-auth.api.ts` via BFF server `action()` calls.
 - Clients API: `~/lib/api/clients.api.ts` via `fetcher` (session cookies + CSRF).
 - Session: `~/lib/auth/session.ts` (`getSession`, `logoutAction`, `useSession`).
+- `returnTo`: `~/lib/auth/return-to.ts` — allowlist `/`, `/users`, `/clients`, `/audit`.
 - CSRF: `api-client.ts` sends `X-XSRF-TOKEN` from `xsrf-token` cookie on state-changing requests.
 - Protected routes redirect unauthenticated users to `/login?returnTo=...`.
 

@@ -3,16 +3,21 @@ import { createMemo, createUniqueId, JSX, Show, splitProps } from "solid-js";
 export interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  /** When false, error affects border/aria only (FieldGroup shows message). Default true. */
+  showErrorMessage?: boolean;
 }
 
 export default function Input(props: InputProps) {
   const [local, others] = splitProps(props, [
     "label",
     "error",
+    "showErrorMessage",
     "class",
     "required",
     "maxLength",
   ]);
+
+  const showErrorMessage = local.showErrorMessage ?? true;
 
   const inputId = createUniqueId();
 
@@ -99,7 +104,7 @@ export default function Input(props: InputProps) {
           </span>
         </Show>
       </div>
-      <Show when={local.error}>
+      <Show when={local.error && showErrorMessage}>
         <p
           id={errorId}
           class="mt-1 text-xs font-medium text-red-600"

@@ -74,6 +74,96 @@ let refreshPromise: Promise<Response> | null = null;
 let refreshAttempts = 0;
 const MAX_REFRESH_ATTEMPTS = 1;
 
+function getSetCookiesFromResponse(response: Response): string[] {
+  const headersAny = response.headers as unknown as {
+    getSetCookie?: () => string[];
+  };
+
+  if (typeof headersAny.getSetCookie === "function") {
+    const cookies = headersAny.getSetCookie();
+    if (cookies.length > 0) {
+      return cookies;
+    }
+  }
+
+  const raw = response.headers.get("set-cookie");
+  return raw ? [raw] : [];
+}
+
+function parseSetCookiePair(
+  setCookie: string,
+): { name: string; value: string } | null {
+  const part = setCookie.split(";")[0]?.trim();
+  if (!part) return null;
+
+  const eq = part.indexOf("=");
+  if (eq <= 0) return null;
+
+  return {
+    name: part.slice(0, eq),
+    value: part.slice(eq + 1),
+  };
+}
+
+function mergeCookieHeader(
+  existingCookieHeader: string | null,
+  setCookies: string[],
+): string {
+  const jar = new Map<string, string>();
+
+  if (existingCookieHeader) {
+    for (const segment of existingCookieHeader.split(/;\s*/)) {
+      const eq = segment.indexOf("=");
+      if (eq > 0) {
+        jar.set(segment.slice(0, eq), segment.slice(eq + 1));
+      }
+    }
+  }
+
+  for (const setCookie of setCookies) {
+    const parsed = parseSetCookiePair(setCookie);
+    if (parsed) {
+      jar.set(parsed.name, parsed.value);
+    }
+  }
+
+  return Array.from(jar.entries())
+    .map(([name, value]) => `${name}=${value}`)
+    .join("; ");
+}
+
+async function appendSetCookiesToSsrResponse(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  event: any,
+  response: Response,
+): Promise<void> {
+  if (!import.meta.env.SSR || !event) {
+    return;
+  }
+
+  const setCookies = getSetCookiesFromResponse(response);
+  if (setCookies.length === 0) {
+    return;
+  }
+
+  try {
+    const { appendResponseHeader } = await import("vinxi/http");
+    const isResponseFinished =
+      event.nativeEvent.node.res.headersSent ||
+      event.nativeEvent.node.res.writableEnded;
+
+    if (isResponseFinished) {
+      return;
+    }
+
+    for (const cookie of setCookies) {
+      appendResponseHeader(event.nativeEvent, "Set-Cookie", cookie);
+    }
+  } catch {
+    // Cookie sync is best-effort during SSR.
+  }
+}
+
 export async function fetcher<T>(
   endpoint: string,
   options: FetchOptions = {},
@@ -138,9 +228,17 @@ export async function fetcher<T>(
       if (!isRefreshing && refreshAttempts < MAX_REFRESH_ATTEMPTS) {
         isRefreshing = true;
         refreshAttempts++;
+
+        const refreshHeaders = new Headers();
+        const cookieHeader = headers.get("cookie");
+        if (cookieHeader) {
+          refreshHeaders.set("cookie", cookieHeader);
+        }
+
         refreshPromise = fetch(`${config.api.baseUrl}/admin/auth/refresh`, {
           method: "POST",
           credentials: "include",
+          headers: refreshHeaders,
         }).finally(() => {
           isRefreshing = false;
           refreshPromise = null;
@@ -152,7 +250,17 @@ export async function fetcher<T>(
 
         if (refreshResponse?.ok) {
           refreshAttempts = 0;
+          await appendSetCookiesToSsrResponse(event, refreshResponse);
+
           const retryHeaders = new Headers(headers);
+          const refreshedCookies = getSetCookiesFromResponse(refreshResponse);
+          if (refreshedCookies.length > 0) {
+            retryHeaders.set(
+              "cookie",
+              mergeCookieHeader(headers.get("cookie"), refreshedCookies),
+            );
+          }
+
           const newXsrfToken = getUniversalCookie("xsrf-token", retryHeaders);
           if (newXsrfToken && stateChangingMethods.includes(method)) {
             retryHeaders.set("X-XSRF-TOKEN", newXsrfToken);
@@ -172,30 +280,7 @@ export async function fetcher<T>(
       }
     }
 
-    if (import.meta.env.SSR && event) {
-      try {
-        const { appendResponseHeader } = await import("vinxi/http");
-        const isResponseFinished =
-          event.nativeEvent.node.res.headersSent ||
-          event.nativeEvent.node.res.writableEnded;
-
-        if (!isResponseFinished) {
-          let setCookies: string[] = [];
-          const headersAny = response.headers as unknown as {
-            getSetCookie?: () => string[];
-          };
-          if (typeof headersAny.getSetCookie === "function") {
-            setCookies = headersAny.getSetCookie();
-          }
-
-          setCookies.forEach((cookie: string) => {
-            appendResponseHeader(event.nativeEvent, "Set-Cookie", cookie);
-          });
-        }
-      } catch {
-        // Cookie sync is best-effort during SSR.
-      }
-    }
+    await appendSetCookiesToSsrResponse(event, response);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

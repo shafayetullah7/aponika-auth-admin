@@ -1,16 +1,22 @@
 import { JSX, Show, createSignal, createUniqueId, splitProps } from "solid-js";
 import { EyeIcon, EyeSlashIcon } from "~/components/icons";
-import { useI18n } from "~/i18n";
 
 export interface PasswordInputProps
   extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "type"> {
   /** Used for border styling and aria-invalid; error text is shown by FieldGroup. */
   error?: string;
+  showPasswordLabel: string;
+  hidePasswordLabel: string;
 }
 
 export default function PasswordInput(props: PasswordInputProps) {
-  const { t } = useI18n();
-  const [local, rest] = splitProps(props, ["error", "class", "id"]);
+  const [local, rest] = splitProps(props, [
+    "error",
+    "class",
+    "id",
+    "showPasswordLabel",
+    "hidePasswordLabel",
+  ]);
   const [showPassword, setShowPassword] = createSignal(false);
 
   const inputId = local.id ?? createUniqueId();
@@ -36,7 +42,7 @@ export default function PasswordInput(props: PasswordInputProps) {
         class="absolute inset-y-0 right-0 flex items-center px-3 text-forest-500 transition-colors hover:text-forest-700 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={() => setShowPassword((value) => !value)}
         aria-label={
-          showPassword() ? t("admin.hidePassword") : t("admin.showPassword")
+          showPassword() ? local.hidePasswordLabel : local.showPasswordLabel
         }
         disabled={rest.disabled}
       >

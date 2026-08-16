@@ -36,7 +36,15 @@ Hints describe **purpose**, not obligation:
 - Good: "The email address for your account."
 - Bad: "Optional email…" — use `requirement="optional"` on the label instead.
 
-Validation errors use the `error` prop and replace the hint while visible.
+Validation errors use the `error` prop on `FieldGroup`. On `Input`, pass `error` for border/`aria-invalid` and set `showErrorMessage={false}` when `FieldGroup` already shows the message (avoids duplicate paragraphs).
+
+```tsx
+<FieldGroup label={t("auth.email")} error={field.error}>
+  <Input error={field.error} showErrorMessage={false} />
+</FieldGroup>
+```
+
+`PasswordInput` does not render a separate error line — keep `error` on `FieldGroup` only.
 
 ## i18n keys
 
