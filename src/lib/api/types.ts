@@ -133,3 +133,13 @@ export interface UpdateOAuthClientDto {
   scopes?: string[];
   pkceRequired?: boolean;
 }
+
+export interface AuditEventSummary {
+  id: string;
+  actorType: string;
+  actorId: string | null;
+  action: string;
+  metadata: Record<string, unknown> | null;
+  ip: string | null;
+  createdAt: string;
+}

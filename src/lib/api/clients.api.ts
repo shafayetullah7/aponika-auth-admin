@@ -1,5 +1,6 @@
 import { fetcher } from "./api-client";
 import type {
+  AuditEventSummary,
   CreateOAuthClientDto,
   ListOAuthClientsFilter,
   OAuthClientDetail,
@@ -80,5 +81,9 @@ export const clientsApi = {
     return fetcher<OAuthClientSummary>(`${BASE_PATH}/${id}/enable`, {
       method: "POST",
     });
+  },
+
+  listAuditEvents(id: string): Promise<AuditEventSummary[]> {
+    return fetcher<AuditEventSummary[]>(`${BASE_PATH}/${id}/audit-events`);
   },
 };

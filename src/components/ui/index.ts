@@ -4,6 +4,7 @@ export { default as Input } from "./Input";
 export { FieldGroup } from "./FieldGroup";
 export { default as PasswordInput } from "./PasswordInput";
 export { LoadingFallback } from "./LoadingFallback";
+export { Modal } from "./Modal";
 export { Pagination } from "./Pagination";
 
 export type { ButtonProps } from "./Button";
