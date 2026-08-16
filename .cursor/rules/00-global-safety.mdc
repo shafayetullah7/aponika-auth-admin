@@ -1,0 +1,12 @@
+---
+description: Global safety rules for aponika-auth-frontend
+alwaysApply: true
+---
+
+# Global Safety Rules
+
+- Keep edits scoped and feature-targeted.
+- Prefer existing UI/data patterns over introducing parallel abstractions.
+- Preserve user-visible behavior unless change is explicitly requested.
+- Never commit secrets or environment credentials.
+- API base URL targets auth backend (`localhost:3010` in dev).

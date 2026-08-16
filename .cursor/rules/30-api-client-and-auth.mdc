@@ -1,0 +1,13 @@
+---
+description: API client and auth conventions
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# API Client and Auth Rules
+
+- Route API calls through `~/lib/api/api-client.ts` `fetcher`.
+- Auth API base: `VITE_API_BASE_URL` (default `http://localhost:3010/api/v1`).
+- Use `credentials: "include"` for cookie-based session (BFF model).
+- Avoid ad-hoc raw `fetch` for internal API endpoints.
+- Extend fetcher with CSRF/refresh in auth feature phase — do not duplicate per route.

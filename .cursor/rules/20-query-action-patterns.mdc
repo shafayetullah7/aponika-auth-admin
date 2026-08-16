@@ -1,0 +1,13 @@
+---
+description: Query and action patterns
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Query and Action Rules
+
+- Read data with `query(...)` and consume via `createAsync(...)`.
+- Write data with `action(...)` and trigger via `useAction`.
+- Track mutation state with `useSubmission`.
+- Revalidate impacted query keys after mutation success.
+- Do not use actions for read-only data fetches.

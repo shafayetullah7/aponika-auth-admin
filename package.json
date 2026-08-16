@@ -1,22 +1,36 @@
 {
-  "name": "example-basic",
+  "name": "@aponika/auth-admin",
+  "version": "0.0.1",
+  "description": "Aponika identity platform — operator console for users, OAuth clients, and roles",
+  "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.24.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "start": "node .output/server/index.mjs",
-    "preview": "vite preview"
+    "dev": "vinxi dev --port 3012",
+    "build": "vinxi build",
+    "start": "vinxi start --host 0.0.0.0 --port 3012",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
+    "@fontsource/noto-sans-bengali": "^5.2.11",
+    "@modular-forms/solid": "^0.25.1",
+    "@solid-primitives/i18n": "^2.2.1",
     "@solidjs/meta": "^0.29.4",
-    "@solidjs/router": "^1.0.0",
-    "@solidjs/start": "^2.0.0",
-    "solid-js": "^1.9.14",
-    "vite": "^8.0.0",
-    "nitro": "^3.0.260610-beta"
+    "@solidjs/router": "^0.15.0",
+    "@solidjs/start": "~1.1.0",
+    "solid-js": "^1.9.5",
+    "vinxi": "^0.5.7",
+    "zod": "^4.3.5"
   },
-  "engines": {
-    "node": ">=24"
-  },
-  "devDependencies": {}
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.7",
+    "@types/node": "^22.10.7",
+    "tailwindcss": "^4.0.7",
+    "typescript": "^6.0.3"
+  }
 }

@@ -8,9 +8,10 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "allowJs": true,
-    "strict": true,
     "noEmit": true,
-    "types": ["vite/client"],
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["vinxi/types/client", "node"],
     "isolatedModules": true,
     "paths": {
       "~/*": ["./src/*"]

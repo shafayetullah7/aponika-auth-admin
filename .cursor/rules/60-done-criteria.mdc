@@ -1,0 +1,15 @@
+---
+description: Done criteria for frontend changes
+globs: src/**
+alwaysApply: false
+---
+
+# Done Criteria Rules
+
+A frontend change is complete only when:
+
+- `pnpm build` and `pnpm typecheck` pass
+- No new TypeScript/lint regressions in touched files
+- API calls use shared fetcher path
+- i18n updates exist for both locales when copy changes
+- Navigation and route behavior match implementation state

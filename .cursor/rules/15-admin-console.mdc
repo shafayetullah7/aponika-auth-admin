@@ -1,0 +1,25 @@
+---
+description: Admin console layout and scope
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Admin Console Rules
+
+This is the **identity platform operator console** — not `byte-forge-admin` (marketplace ops).
+
+## Layout
+
+- **Protected routes** use `(protected).tsx` sidebar shell (`AdminSidebar` + main content).
+- **Auth routes** (`/login`) use full-page centered card — no sidebar.
+- Nav items live in `~/config/admin-nav.ts`.
+
+## Scope
+
+- Users, OAuth clients, platform roles, audit — yes.
+- Shops, products, orders, campaigns — no.
+
+## Auth (later)
+
+- Protected layout is a **stub** until platform-admin auth is implemented.
+- Do not duplicate end-user self-registration from `aponika-auth-frontend`.

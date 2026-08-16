@@ -1,33 +1,54 @@
-# SolidStart
+# @aponika/auth-admin
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+SolidStart operator console for the identity platform: users, OAuth clients, roles, audit.
 
-## Creating a project
+**Local port:** `3012`  
+**Setup status:** SolidStart 1.1 + Tailwind 4 — see [platform setup plan](../docs/PLATFORM_SETUP_PLAN.md).
 
-```bash
-# create a new project in the current directory
-npm init solid@latest
+Not the same as `byte-forge-admin` (marketplace operations).
 
-# create a new project in my-app
-npm init solid@latest my-app
-```
+## Prerequisites
 
-## Developing
+- Node.js 22 (`nvm use` reads `.nvmrc`)
+- pnpm 10
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Commands
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm install
+cp .env.example .env.development   # first time
+pnpm dev                           # http://localhost:3012
+pnpm build
+pnpm typecheck
 ```
 
-## Building
+## Environment
 
-Solid apps are built with Nitro _presets_, which optimise your project for deployment to different environments.
+Copy `.env.example` to `.env.development`:
 
-By default, `npm run build` will generate a Node app under `.output` that you can run with `npm start`. To use a different preset, set it on the `nitro()` plugin in your `vite.config.ts`.
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `VITE_API_ORIGIN` | `http://localhost:3010` | Auth API origin (no path) |
+| `VITE_API_BASE_URL` | `http://localhost:3010/api/v1` | Versioned API base for `fetcher()` |
+| `VITE_HEALTH_URL` | `http://localhost:3010/health` | Public health smoke test |
+| `VITE_CLIENT_TIMEOUT` | `30000` | Browser fetch timeout (ms) |
+| `VITE_SERVER_TIMEOUT` | `30000` | SSR fetch timeout (ms) |
 
-## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
-# aponika-auth-admin
+The dashboard shows API health in dev when the backend is running.
+
+## Routes (stub)
+
+| Path | Purpose |
+|------|---------|
+| `/login` | Operator login placeholder |
+| `/` | Dashboard (sidebar layout) |
+| `/users` | Users placeholder |
+| `/clients` | OAuth clients placeholder |
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [../docs/PLATFORM_SETUP_PLAN.md](../docs/PLATFORM_SETUP_PLAN.md) | Phased bootstrap (start here) |
+| [../docs/STACK.md](../docs/STACK.md) | Locked dependency versions |
+| [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | Platform boundaries |

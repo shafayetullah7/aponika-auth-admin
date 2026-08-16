@@ -1,0 +1,14 @@
+---
+description: Routing and layout conventions
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Routing and Layout Rules
+
+- Follow route-group conventions in `src/routes`.
+- `(auth)` group uses centered card layout for operator login.
+- `(protected)` group uses sidebar shell — see `15-admin-console.mdc`.
+- Use route-level orchestration; avoid deeply embedding route concerns into generic components.
+- Use `A` links for navigation unless non-router behavior is needed.
+- `returnTo` query param allowed only for post-login redirect.

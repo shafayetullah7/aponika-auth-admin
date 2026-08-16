@@ -1,0 +1,19 @@
+---
+description: Form field requirement conventions
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Field Requirement Conventions
+
+Use `FieldGroup` from `~/components/ui/FieldGroup` when UI primitives exist (Phase 6).
+
+| `requirement` | Label marker |
+|---------------|--------------|
+| `required` | red `*` |
+| `optional` | gray `(Optional)` via `common.optional` |
+| `requiredForReview` | gray via `common.requiredForReview` |
+
+Default when omitted: `required`.
+
+Hints describe purpose only — never repeat optional/required wording in hints.

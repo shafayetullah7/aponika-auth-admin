@@ -1,0 +1,21 @@
+---
+description: Route folder structure
+globs: src/routes/**
+alwaysApply: false
+---
+
+# Route Folder Structure
+
+Colocate route-private code under the route segment. Use `~/lib/` when **two or more route trees** import the same module.
+
+```
+{route-segment}/
+  (page).tsx
+  actions.ts
+  hooks/
+  components/
+  utils/
+```
+
+- Do not define inline `action()` in route `.tsx` when a colocated `*.actions.ts` exists.
+- App-wide UI stays in `~/components/ui/`.
