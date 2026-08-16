@@ -1,5 +1,5 @@
 import { Show, type JSX } from "solid-js";
-import { useI18n } from "~/i18n";
+import { optionalLabel, requiredForReviewLabel } from "~/copy/labels";
 
 export type FieldRequirement = "required" | "optional" | "requiredForReview";
 
@@ -12,8 +12,6 @@ export function FieldGroup(props: {
   error?: string;
   children: JSX.Element;
 }) {
-  const { t } = useI18n();
-
   const requirement = (): FieldRequirement => {
     if (props.requirement) return props.requirement;
     if (props.required) return "required";
@@ -28,13 +26,11 @@ export function FieldGroup(props: {
           <span class="ml-1 text-red-500">*</span>
         </Show>
         <Show when={requirement() === "optional"}>
-          <span class="ml-1 font-normal text-gray-500">
-            ({t("common.optional")})
-          </span>
+          <span class="ml-1 font-normal text-gray-500">({optionalLabel})</span>
         </Show>
         <Show when={requirement() === "requiredForReview"}>
           <span class="ml-1 font-normal text-gray-500">
-            ({t("common.requiredForReview")})
+            ({requiredForReviewLabel})
           </span>
         </Show>
       </label>

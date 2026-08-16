@@ -1,9 +1,5 @@
 @import "tailwindcss";
 @import "@fontsource-variable/plus-jakarta-sans";
-@import "@fontsource/noto-sans-bengali/400.css";
-@import "@fontsource/noto-sans-bengali/500.css";
-@import "@fontsource/noto-sans-bengali/600.css";
-@import "@fontsource/noto-sans-bengali/700.css";
 
 @theme {
   --color-forest-50: #f1f7f2;
@@ -43,7 +39,7 @@
 body {
   background-color: var(--color-cream-50);
   color: var(--color-forest-800);
-  font-family: "Plus Jakarta Sans Variable", "Noto Sans Bengali", sans-serif;
+  font-family: "Plus Jakarta Sans Variable", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -55,7 +51,7 @@ body {
 }
 
 @utility h3 {
-  font-family: "Plus Jakarta Sans Variable", "Noto Sans Bengali", sans-serif;
+  font-family: "Plus Jakarta Sans Variable", sans-serif;
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;

@@ -1,9 +1,9 @@
 import { createAsync } from "@solidjs/router";
 import type { JSX } from "solid-js";
+import { copy } from "~/copy";
 import { getHealth } from "~/lib/api/health.api";
 import { ApiError } from "~/lib/api/types";
 import { config } from "~/lib/config";
-import { useI18n } from "~/i18n";
 
 type HealthResult =
   | Awaited<ReturnType<typeof getHealth>>
@@ -17,10 +17,9 @@ function isErrorResult(
 
 function HealthStatusBadge(props: {
   result: HealthResult;
-  t: ReturnType<typeof useI18n>["t"];
   class?: string;
 }): JSX.Element {
-  const { result, t } = props;
+  const { result } = props;
 
   if (isErrorResult(result)) {
     return (
@@ -28,7 +27,7 @@ function HealthStatusBadge(props: {
         class={`rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ${props.class ?? ""}`}
       >
         <span>
-          {t("common.apiUnreachable")}
+          {copy.common.apiUnreachable}
           {result.error instanceof ApiError && result.error.status > 0
             ? ` (${result.error.status})`
             : ""}
@@ -46,17 +45,15 @@ function HealthStatusBadge(props: {
       }}
     >
       <span>
-        {t("common.apiReachable")} · {t("common.apiStatus")}: {result.status} ·{" "}
-        {t("common.apiDb")}:{" "}
-        {result.db === "ok" ? t("common.apiDbOk") : t("common.apiDbDown")}
+        {copy.common.apiReachable} · {copy.common.apiStatus}: {result.status} ·{" "}
+        {copy.common.apiDb}:{" "}
+        {result.db === "ok" ? copy.common.apiDbOk : copy.common.apiDbDown}
       </span>
     </div>
   );
 }
 
 export function ApiHealthStatus(props: { class?: string }) {
-  const { t } = useI18n();
-
   if (!config.isDev) {
     return null;
   }
@@ -68,7 +65,7 @@ export function ApiHealthStatus(props: { class?: string }) {
   return (
     <>
       {health() ? (
-        <HealthStatusBadge result={health()!} t={t} class={props.class} />
+        <HealthStatusBadge result={health()!} class={props.class} />
       ) : null}
     </>
   );

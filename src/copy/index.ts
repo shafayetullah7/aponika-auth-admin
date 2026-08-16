@@ -1,4 +1,4 @@
-export const dict = {
+export const copy = {
   common: {
     loading: "Loading...",
     placeholder: "Coming soon",

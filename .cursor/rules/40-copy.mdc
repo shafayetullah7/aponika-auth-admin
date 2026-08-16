@@ -1,0 +1,12 @@
+---
+description: English copy conventions (admin is EN-only)
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# Copy Rules
+
+- Operator console is **English only** — no locale switching or Bengali catalog.
+- Keep user-facing text in `~/copy/index.ts` (or domain helpers in `~/copy/`).
+- Do not leave placeholder strings in production routes.
+- Form field markers use `~/copy/labels.ts` (`optionalLabel`, `requiredForReviewLabel`).

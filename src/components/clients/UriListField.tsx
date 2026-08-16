@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import { Button, FieldGroup, Input } from "~/components/ui";
-import { useI18n } from "~/i18n";
+import { copy } from "~/copy";
 
 export function UriListField(props: {
   label: string;
@@ -12,8 +12,6 @@ export function UriListField(props: {
   placeholder?: string;
   disabled?: boolean;
 }) {
-  const { t } = useI18n();
-
   const updateAt = (index: number, value: string) => {
     const next = [...props.values];
     next[index] = value;
@@ -72,7 +70,7 @@ export function UriListField(props: {
           disabled={props.disabled}
           onClick={addRow}
         >
-          + {t("clientsCreate.addUri")}
+          + {copy.clientsCreate.addUri}
         </Button>
       </div>
     </FieldGroup>

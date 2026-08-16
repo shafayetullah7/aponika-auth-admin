@@ -1,3 +1,4 @@
+import { copy } from "~/copy";
 import { action, useAction, useSubmission, A, useNavigate } from "@solidjs/router";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { createForm, setError, type FieldValues, type FormStore } from "@modular-forms/solid";
@@ -7,7 +8,6 @@ import { Button, Card, FieldGroup, Input } from "~/components/ui";
 import { applyApiErrorToForm } from "~/lib/api/map-api-errors";
 import { clientsApi } from "~/lib/api/clients.api";
 import type { OAuthClientDetail } from "~/lib/api/types";
-import { useI18n } from "~/i18n";
 import {
   buildCreateClientPayload,
   createClientPayloadSchema,
@@ -25,8 +25,7 @@ const createClientAction = action(async (payload: CreateClientPayload) => {
 }, "admin-create-oauth-client");
 
 export default function CreateClientPage() {
-  const { t } = useI18n();
-  const navigate = useNavigate();
+    const navigate = useNavigate();
   const createTrigger = useAction(createClientAction);
   const submission = useSubmission(createClientAction);
 
@@ -85,7 +84,7 @@ export default function CreateClientPage() {
     const fallback =
       submission.error instanceof Error
         ? submission.error.message
-        : t("clientsCreate.failed");
+        : copy.clientsCreate.failed;
     setFormError(fallback);
   });
 
@@ -144,11 +143,11 @@ export default function CreateClientPage() {
     <div class="space-y-6">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
-          <h1 class="h3">{t("clientsCreate.title")}</h1>
-          <p class="text-forest-700">{t("clientsCreate.subtitle")}</p>
+          <h1 class="h3">{copy.clientsCreate.title}</h1>
+          <p class="text-forest-700">{copy.clientsCreate.subtitle}</p>
         </div>
         <A href="/clients" class="text-sm font-semibold text-forest-600 hover:text-forest-800">
-          {t("clientsCreate.backToList")}
+          {copy.clientsCreate.backToList}
         </A>
       </div>
 
@@ -177,9 +176,9 @@ export default function CreateClientPage() {
               <Field name="clientId">
                 {(field, props) => (
                   <FieldGroup
-                    label={t("clientsCreate.clientId")}
+                    label={copy.clientsCreate.clientId}
                     requirement="required"
-                    hint={t("clientsCreate.clientIdHint")}
+                    hint={copy.clientsCreate.clientIdHint}
                     error={field.error}
                   >
                     <Input
@@ -194,9 +193,9 @@ export default function CreateClientPage() {
               <Field name="clientType">
                 {(field, props) => (
                   <FieldGroup
-                    label={t("clientsCreate.clientType")}
+                    label={copy.clientsCreate.clientType}
                     requirement="required"
-                    hint={t("clientsCreate.clientTypeHint")}
+                    hint={copy.clientsCreate.clientTypeHint}
                     error={field.error}
                   >
                     <select
@@ -205,8 +204,8 @@ export default function CreateClientPage() {
                       value={field.value || "public"}
                       disabled={submission.pending}
                     >
-                      <option value="public">{t("clients.typePublic")}</option>
-                      <option value="confidential">{t("clients.typeConfidential")}</option>
+                      <option value="public">{copy.clients.typePublic}</option>
+                      <option value="confidential">{copy.clients.typeConfidential}</option>
                     </select>
                   </FieldGroup>
                 )}
@@ -215,7 +214,7 @@ export default function CreateClientPage() {
 
             <Field name="name">
               {(field, props) => (
-                <FieldGroup label={t("clientsCreate.name")} requirement="required" error={field.error}>
+                <FieldGroup label={copy.clientsCreate.name} requirement="required" error={field.error}>
                   <Input {...props} value={field.value || ""} disabled={submission.pending} />
                 </FieldGroup>
               )}
@@ -224,7 +223,7 @@ export default function CreateClientPage() {
             <Field name="description">
               {(field, props) => (
                 <FieldGroup
-                  label={t("clientsCreate.description")}
+                  label={copy.clientsCreate.description}
                   requirement="optional"
                   error={field.error}
                 >
@@ -240,9 +239,9 @@ export default function CreateClientPage() {
             </Field>
 
             <UriListField
-              label={t("clientsCreate.redirectUris")}
+              label={copy.clientsCreate.redirectUris}
               requirement="required"
-              hint={t("clientsCreate.redirectUrisHint")}
+              hint={copy.clientsCreate.redirectUrisHint}
               values={redirectUris()}
               onChange={setRedirectUris}
               error={uriErrors().redirectUris}
@@ -251,9 +250,9 @@ export default function CreateClientPage() {
             />
 
             <UriListField
-              label={t("clientsCreate.postLogoutUris")}
+              label={copy.clientsCreate.postLogoutUris}
               requirement="optional"
-              hint={t("clientsCreate.postLogoutUrisHint")}
+              hint={copy.clientsCreate.postLogoutUrisHint}
               values={postLogoutUris()}
               onChange={setPostLogoutUris}
               error={uriErrors().postLogoutRedirectUris}
@@ -262,9 +261,9 @@ export default function CreateClientPage() {
             />
 
             <UriListField
-              label={t("clientsCreate.allowedOrigins")}
+              label={copy.clientsCreate.allowedOrigins}
               requirement="optional"
-              hint={t("clientsCreate.allowedOriginsHint")}
+              hint={copy.clientsCreate.allowedOriginsHint}
               values={allowedOrigins()}
               onChange={setAllowedOrigins}
               error={uriErrors().allowedOrigins}
@@ -273,9 +272,9 @@ export default function CreateClientPage() {
             />
 
             <FieldGroup
-              label={t("clientsCreate.scopes")}
+              label={copy.clientsCreate.scopes}
               requirement="required"
-              hint={t("clientsCreate.scopesHint")}
+              hint={copy.clientsCreate.scopesHint}
             >
               <div class="flex flex-wrap gap-4">
                 <For each={[...OAUTH_SCOPES]}>
@@ -298,9 +297,9 @@ export default function CreateClientPage() {
             </FieldGroup>
 
             <FieldGroup
-              label={t("clientsCreate.pkceRequired")}
+              label={copy.clientsCreate.pkceRequired}
               requirement="optional"
-              hint={t("clientsCreate.pkceHint")}
+              hint={copy.clientsCreate.pkceHint}
             >
               <label class="inline-flex items-center gap-2 text-sm text-forest-800">
                 <input
@@ -310,17 +309,17 @@ export default function CreateClientPage() {
                   disabled={submission.pending}
                   onChange={(event) => setPkceRequired(event.currentTarget.checked)}
                 />
-                {t("clientsCreate.pkceEnabled")}
+                {copy.clientsCreate.pkceEnabled}
               </label>
             </FieldGroup>
 
             <div class="flex gap-3">
               <Button type="submit" loading={submission.pending}>
-                {submission.pending ? t("clientsCreate.submitting") : t("clientsCreate.submit")}
+                {submission.pending ? copy.clientsCreate.submitting : copy.clientsCreate.submit}
               </Button>
               <A href="/clients">
                 <Button type="button" variant="outline" disabled={submission.pending}>
-                  {t("admin.back")}
+                  {copy.admin.back}
                 </Button>
               </A>
             </div>

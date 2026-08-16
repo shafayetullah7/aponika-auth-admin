@@ -2,6 +2,8 @@
 
 SolidStart operator console for the identity platform: users, OAuth clients, roles, audit.
 
+**Language:** English only (operator console). End-user auth UI (`aponika-auth-frontend`) remains bilingual.
+
 **Local port:** `3012`  
 **Setup status:** SolidStart 1.1 + Tailwind 4 — see [platform setup plan](../docs/PLATFORM_SETUP_PLAN.md).
 

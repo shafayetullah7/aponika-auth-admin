@@ -10,7 +10,7 @@ import {
   buildAuthPathWithReturnTo,
   safeReturnTo,
 } from "~/lib/auth/return-to";
-import { useI18n } from "~/i18n";
+import { copy } from "~/copy";
 import {
   registerDetailsSchema,
   toRegisterPayload,
@@ -55,7 +55,6 @@ const completeRegistrationAction = action(
 );
 
 export default function RegisterPage() {
-  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [step, setStep] = createSignal<"details" | "otp">("details");
   const [expiresAt, setExpiresAt] = createSignal<string | null>(null);
@@ -122,11 +121,11 @@ export default function RegisterPage() {
       | undefined;
 
     if (isRateLimitError(error.status, data?.message, data?.errorCode)) {
-      setErrorMessage(t("admin.registrationRateLimited"));
+      setErrorMessage(copy.admin.registrationRateLimited);
       return;
     }
 
-    setErrorMessage(data?.message || error.message || t("admin.registerFailed"));
+    setErrorMessage(data?.message || error.message || copy.admin.registerFailed);
   });
 
   const handleDetailsSubmit = (values: RegisterDetailsFormData) => {
@@ -155,8 +154,8 @@ export default function RegisterPage() {
   return (
     <main class="flex min-h-screen items-center justify-center bg-forest-950 p-4">
       <Card class="w-full max-w-lg">
-        <h1 class="h3 text-center">{t("admin.registerTitle")}</h1>
-        <p class="mt-2 text-center text-forest-600">{t("admin.registerSubtitle")}</p>
+        <h1 class="h3 text-center">{copy.admin.registerTitle}</h1>
+        <p class="mt-2 text-center text-forest-600">{copy.admin.registerSubtitle}</p>
 
         <Show when={errorMessage()}>
           <div class="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -170,7 +169,7 @@ export default function RegisterPage() {
               <DetailsField name="firstName">
                 {(field, props) => (
                   <FieldGroup
-                    label={t("admin.firstName")}
+                    label={copy.admin.firstName}
                     requirement="required"
                     error={field.error}
                   >
@@ -187,7 +186,7 @@ export default function RegisterPage() {
               <DetailsField name="lastName">
                 {(field, props) => (
                   <FieldGroup
-                    label={t("admin.lastName")}
+                    label={copy.admin.lastName}
                     requirement="required"
                     error={field.error}
                   >
@@ -206,7 +205,7 @@ export default function RegisterPage() {
             <DetailsField name="userName">
               {(field, props) => (
                 <FieldGroup
-                  label={t("admin.userName")}
+                  label={copy.admin.userName}
                   requirement="required"
                   error={field.error}
                 >
@@ -224,7 +223,7 @@ export default function RegisterPage() {
             <DetailsField name="email">
               {(field, props) => (
                 <FieldGroup
-                  label={t("admin.email")}
+                  label={copy.admin.email}
                   requirement="required"
                   error={field.error}
                 >
@@ -244,7 +243,7 @@ export default function RegisterPage() {
             <DetailsField name="password">
               {(field, props) => (
                 <FieldGroup
-                  label={t("admin.password")}
+                  label={copy.admin.password}
                   requirement="required"
                   error={field.error}
                 >
@@ -253,8 +252,8 @@ export default function RegisterPage() {
                     autocomplete="new-password"
                     value={field.value || ""}
                     error={field.error}
-                    showPasswordLabel={t("admin.showPassword")}
-                    hidePasswordLabel={t("admin.hidePassword")}
+                    showPasswordLabel={copy.admin.showPassword}
+                    hidePasswordLabel={copy.admin.hidePassword}
                     disabled={requestOtpSubmission.pending}
                   />
                 </FieldGroup>
@@ -264,7 +263,7 @@ export default function RegisterPage() {
             <DetailsField name="confirmPassword">
               {(field, props) => (
                 <FieldGroup
-                  label={t("admin.confirmPassword")}
+                  label={copy.admin.confirmPassword}
                   requirement="required"
                   error={field.error}
                 >
@@ -273,8 +272,8 @@ export default function RegisterPage() {
                     autocomplete="new-password"
                     value={field.value || ""}
                     error={field.error}
-                    showPasswordLabel={t("admin.showPassword")}
-                    hidePasswordLabel={t("admin.hidePassword")}
+                    showPasswordLabel={copy.admin.showPassword}
+                    hidePasswordLabel={copy.admin.hidePassword}
                     disabled={requestOtpSubmission.pending}
                   />
                 </FieldGroup>
@@ -282,17 +281,17 @@ export default function RegisterPage() {
             </DetailsField>
 
             <Button type="submit" class="w-full" loading={requestOtpSubmission.pending}>
-              {requestOtpSubmission.pending ? t("admin.requestingOtp") : t("admin.requestOtp")}
+              {requestOtpSubmission.pending ? copy.admin.requestingOtp : copy.admin.requestOtp}
             </Button>
           </DetailsForm>
         </Show>
 
         <Show when={step() === "otp"}>
           <div class="mt-6 rounded-xl border border-forest-200 bg-forest-50 px-4 py-3 text-sm text-forest-800">
-            <p>{t("admin.otpGatekeeperInfo")}</p>
+            <p>{copy.admin.otpGatekeeperInfo}</p>
             <Show when={expiresAt()}>
               <p class="mt-2 font-medium">
-                {t("admin.otpExpiresAt")}: {new Date(expiresAt()!).toLocaleString()}
+                {copy.admin.otpExpiresAt}: {new Date(expiresAt()!).toLocaleString()}
               </p>
             </Show>
           </div>
@@ -301,7 +300,7 @@ export default function RegisterPage() {
             <OtpField name="otp">
               {(field, props) => (
                 <FieldGroup
-                  label={t("admin.otp")}
+                  label={copy.admin.otp}
                   requirement="required"
                   error={field.error}
                 >
@@ -321,19 +320,19 @@ export default function RegisterPage() {
 
             <div class="flex gap-3">
               <Button type="button" variant="secondary" class="flex-1" onClick={() => setStep("details")}>
-                {t("admin.back")}
+                {copy.admin.back}
               </Button>
               <Button type="submit" class="flex-1" loading={completeSubmission.pending}>
-                {completeSubmission.pending ? t("admin.completingRegistration") : t("admin.completeRegistration")}
+                {completeSubmission.pending ? copy.admin.completingRegistration : copy.admin.completeRegistration}
               </Button>
             </div>
           </OtpForm>
         </Show>
 
         <p class="mt-6 text-center text-sm text-forest-600">
-          {t("admin.haveAccount")}{" "}
+          {copy.admin.haveAccount}{" "}
           <A href={loginHref()} class="font-semibold text-forest-700 hover:text-forest-900">
-            {t("admin.signIn")}
+            {copy.admin.signIn}
           </A>
         </p>
       </Card>

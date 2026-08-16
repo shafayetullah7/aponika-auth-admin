@@ -1,6 +1,5 @@
 import { A } from "@solidjs/router";
 import type { AdminNavItem } from "~/config/admin-nav";
-import { useI18n } from "~/i18n";
 
 const linkBaseClass =
   "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors group";
@@ -15,7 +14,6 @@ export interface AdminNavLinkProps {
 }
 
 export function AdminNavLink(props: AdminNavLinkProps) {
-  const { t } = useI18n();
   const Icon = props.item.icon;
 
   return (
@@ -27,7 +25,7 @@ export function AdminNavLink(props: AdminNavLinkProps) {
       end={props.item.match === "exact"}
     >
       <Icon class={iconBaseClass} />
-      {t(props.item.labelKey)}
+      {props.item.label}
     </A>
   );
 }

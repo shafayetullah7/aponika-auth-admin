@@ -6,11 +6,12 @@ Aponika Auth uses the same field pattern as Byte Forge for consistent forms acro
 
 ```tsx
 import { FieldGroup, Input } from "~/components/ui";
+import { copy } from "~/copy";
 
 <FieldGroup
-  label={t("auth.email")}
+  label={copy.admin.email}
   requirement="required"
-  hint={t("auth.emailHint")}
+  hint={copy.admin.emailHint}
   error={errors().email}
 >
   <Input type="email" name="email" />
@@ -39,21 +40,16 @@ Hints describe **purpose**, not obligation:
 Validation errors use the `error` prop on `FieldGroup`. On `Input`, pass `error` for border/`aria-invalid` and set `showErrorMessage={false}` when `FieldGroup` already shows the message (avoids duplicate paragraphs).
 
 ```tsx
-<FieldGroup label={t("auth.email")} error={field.error}>
+<FieldGroup label={copy.admin.email} error={field.error}>
   <Input error={field.error} showErrorMessage={false} />
 </FieldGroup>
 ```
 
 `PasswordInput` does not render a separate error line — keep `error` on `FieldGroup` only.
 
-## i18n keys
+## Optional / review markers
 
-```ts
-common.optional           // "Optional" / "ঐচ্ছিক"
-common.requiredForReview  // "Required for review" / "রিভিউর জন্য প্রয়োজন"
-```
-
-Add per-form `validation.*` messages for error text; keep hints free of requirement language.
+Defined in `~/copy/labels.ts` (`optionalLabel`, `requiredForReviewLabel`). Auth frontend uses i18n `common.optional` / `common.requiredForReview` instead.
 
 ## Source
 

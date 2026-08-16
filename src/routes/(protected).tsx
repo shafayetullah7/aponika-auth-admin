@@ -1,6 +1,5 @@
 import { useNavigate } from "@solidjs/router";
 import { createEffect, Show, Suspense, type JSX } from "solid-js";
-import { LocaleToggle } from "~/components/LocaleToggle";
 import { AdminSidebar } from "~/components/layout";
 import { LoadingFallback } from "~/components/ui";
 import { useSession } from "~/lib/auth";
@@ -30,9 +29,6 @@ export default function ProtectedLayout(props: { children: JSX.Element }) {
       <div class="flex h-screen overflow-hidden bg-cream-50">
         <AdminSidebar />
         <main class="flex-1 overflow-y-auto p-8">
-          <div class="mb-6 flex justify-end">
-            <LocaleToggle />
-          </div>
           <Suspense fallback={<LoadingFallback fullScreen={false} />}>
             {props.children}
           </Suspense>

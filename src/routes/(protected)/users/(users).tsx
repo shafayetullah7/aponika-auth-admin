@@ -1,3 +1,5 @@
+import { copy } from "~/copy";
+import { formatDate, paginationLabels } from "~/copy/format";
 import { A, createAsync } from "@solidjs/router";
 import {
   createDeferred,
@@ -14,7 +16,6 @@ import type {
   PlatformUserStatus,
   PlatformUserSummary,
 } from "~/lib/api/types";
-import { useI18n } from "~/i18n";
 
 function UsersTableSkeleton() {
   return (
@@ -46,8 +47,7 @@ function StatusBadge(props: { status: PlatformUserStatus; label: string }) {
 }
 
 export default function UsersPage() {
-  const { t, locale } = useI18n();
-  const [page, setPage] = createSignal(1);
+    const [page, setPage] = createSignal(1);
   const [limit, setLimit] = createSignal(20);
   const [filters, setFilters] = createStore({
     search: "",
@@ -71,7 +71,7 @@ export default function UsersPage() {
         });
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : t("users.loadFailed");
+          error instanceof Error ? error.message : copy.users.loadFailed;
         setLoadError(message);
         return undefined;
       }
@@ -100,33 +100,26 @@ export default function UsersPage() {
     if (page() !== 1) setPage(1);
   });
 
-  const formatDate = (value: string) =>
-    new Date(value).toLocaleDateString(locale(), {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-
   const statusLabel = (status: PlatformUserStatus) =>
-    status === "ACTIVE" ? t("users.statusActive") : t("users.statusSuspended");
+    status === "ACTIVE" ? copy.users.statusActive : copy.users.statusSuspended;
 
   const retry = () => setReloadKey((current) => current + 1);
 
   return (
     <div class="space-y-6">
       <div class="space-y-1">
-        <h1 class="h3">{t("admin.users")}</h1>
-        <p class="text-forest-700">{t("admin.usersBlurb")}</p>
+        <h1 class="h3">{copy.admin.users}</h1>
+        <p class="text-forest-700">{copy.admin.usersBlurb}</p>
       </div>
 
       <div class="flat-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
         <input
           type="search"
-          placeholder={t("users.searchPlaceholder")}
+          placeholder={copy.users.searchPlaceholder}
           class="focus-ring-flat w-full rounded-lg border-2 border-cream-200 bg-white px-3 py-2 text-sm text-forest-800 sm:max-w-sm"
           value={filters.search}
           onInput={(event) => setFilters("search", event.currentTarget.value)}
-          aria-label={t("users.searchPlaceholder")}
+          aria-label={copy.users.searchPlaceholder}
         />
 
         <select
@@ -135,11 +128,11 @@ export default function UsersPage() {
           onChange={(event) =>
             setFilters("status", event.currentTarget.value as "" | PlatformUserStatus)
           }
-          aria-label={t("users.statusFilter")}
+          aria-label={copy.users.statusFilter}
         >
-          <option value="">{t("users.statusAll")}</option>
-          <option value="ACTIVE">{t("users.statusActive")}</option>
-          <option value="SUSPENDED">{t("users.statusSuspended")}</option>
+          <option value="">{copy.users.statusAll}</option>
+          <option value="ACTIVE">{copy.users.statusActive}</option>
+          <option value="SUSPENDED">{copy.users.statusSuspended}</option>
         </select>
       </div>
 
@@ -154,7 +147,7 @@ export default function UsersPage() {
             class="text-sm font-semibold text-forest-600 underline hover:text-forest-800"
             onClick={retry}
           >
-            {t("users.retry")}
+            {copy.users.retry}
           </button>
         </div>
       </Show>
@@ -166,22 +159,22 @@ export default function UsersPage() {
               <thead class="border-b border-cream-200 bg-cream-50">
                 <tr class="text-left text-xs font-semibold uppercase tracking-wide text-forest-600">
                   <th scope="col" class="px-6 py-3">
-                    {t("users.colEmail")}
+                    {copy.users.colEmail}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("users.colDisplayName")}
+                    {copy.users.colDisplayName}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("users.colStatus")}
+                    {copy.users.colStatus}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("users.colVerified")}
+                    {copy.users.colVerified}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("users.colCreated")}
+                    {copy.users.colCreated}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">{t("users.colActions")}</span>
+                    <span class="sr-only">{copy.users.colActions}</span>
                   </th>
                 </tr>
               </thead>
@@ -191,7 +184,7 @@ export default function UsersPage() {
                   fallback={
                     <tr>
                       <td colSpan={6} class="px-6 py-12 text-center text-sm text-forest-600">
-                        {t("users.empty")}
+                        {copy.users.empty}
                       </td>
                     </tr>
                   }
@@ -212,7 +205,7 @@ export default function UsersPage() {
                           />
                         </td>
                         <td class="px-6 py-4 text-sm text-forest-700">
-                          {user.emailVerified ? t("users.verifiedYes") : t("users.verifiedNo")}
+                          {user.emailVerified ? copy.users.verifiedYes : copy.users.verifiedNo}
                         </td>
                         <td class="px-6 py-4 text-sm text-forest-700">
                           {formatDate(user.createdAt)}
@@ -222,7 +215,7 @@ export default function UsersPage() {
                             href={`/users/${user.id}`}
                             class="rounded text-sm font-semibold text-forest-600 underline-offset-2 hover:text-forest-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-500"
                           >
-                            {t("users.view")}
+                            {copy.users.view}
                           </A>
                         </td>
                       </tr>
@@ -243,17 +236,7 @@ export default function UsersPage() {
                   if (page() !== 1) setPage(1);
                 }}
                 showLimitSelector
-                labels={{
-                  showing: t("users.paginationShowing"),
-                  previous: t("users.paginationPrevious"),
-                  next: t("users.paginationNext"),
-                  pageOf: (current, total) =>
-                    t("users.paginationPageOf")
-                      .replace("{page}", String(current))
-                      .replace("{total}", String(total)),
-                  perPage: (value) =>
-                    t("users.paginationPerPage").replace("{limit}", String(value)),
-                }}
+                labels={paginationLabels(copy.users)}
               />
             )}
           </Show>

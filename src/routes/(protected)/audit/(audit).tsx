@@ -1,3 +1,6 @@
+import { copy } from "~/copy";
+import { auditActionLabel } from "~/copy/audit";
+import { formatDateTime, paginationLabels } from "~/copy/format";
 import { createAsync } from "@solidjs/router";
 import {
   createDeferred,
@@ -10,7 +13,6 @@ import { createStore } from "solid-js/store";
 import { Pagination } from "~/components/ui/Pagination";
 import { AUDIT_ACTION_OPTIONS, auditApi } from "~/lib/api/audit.api";
 import type { AuditEventSummary, PaginatedResult } from "~/lib/api/types";
-import { useI18n } from "~/i18n";
 
 function AuditTableSkeleton() {
   return (
@@ -36,8 +38,7 @@ function toIsoEndOfDay(value: string): string | undefined {
 }
 
 export default function AuditLogPage() {
-  const { t, locale } = useI18n();
-  const [page, setPage] = createSignal(1);
+    const [page, setPage] = createSignal(1);
   const [limit, setLimit] = createSignal(20);
   const [filters, setFilters] = createStore({
     action: "",
@@ -65,7 +66,7 @@ export default function AuditLogPage() {
         });
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : t("auditLog.loadFailed");
+          error instanceof Error ? error.message : copy.auditLog.loadFailed;
         setLoadError(message);
         return undefined;
       }
@@ -92,20 +93,7 @@ export default function AuditLogPage() {
     if (page() !== 1) setPage(1);
   });
 
-  const formatDate = (value: string) =>
-    new Date(value).toLocaleString(locale(), {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  const actionLabel = (action: string) => {
-    const key = `auditLog.action.${action}`;
-    const translated = t(key);
-    return translated === key ? action : translated;
-  };
+  const actionLabel = auditActionLabel;
 
   const formatResource = (event: AuditEventSummary) => {
     if (!event.resourceType) return "—";
@@ -127,21 +115,21 @@ export default function AuditLogPage() {
   return (
     <div class="space-y-6">
       <div class="space-y-1">
-        <h1 class="h3">{t("admin.audit")}</h1>
-        <p class="text-forest-700">{t("admin.auditBlurb")}</p>
+        <h1 class="h3">{copy.admin.audit}</h1>
+        <p class="text-forest-700">{copy.admin.auditBlurb}</p>
       </div>
 
       <div class="flat-card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
         <label class="space-y-1">
           <span class="text-xs font-semibold uppercase tracking-wide text-forest-600">
-            {t("auditLog.actionFilter")}
+            {copy.auditLog.actionFilter}
           </span>
           <select
             class="focus-ring-flat h-10 w-full rounded-lg border-2 border-cream-200 bg-white px-3 text-sm text-forest-700"
             value={filters.action}
             onChange={(event) => setFilters("action", event.currentTarget.value)}
           >
-            <option value="">{t("auditLog.actionAll")}</option>
+            <option value="">{copy.auditLog.actionAll}</option>
             <For each={[...AUDIT_ACTION_OPTIONS]}>
               {(action) => (
                 <option value={action}>{actionLabel(action)}</option>
@@ -152,12 +140,12 @@ export default function AuditLogPage() {
 
         <label class="space-y-1">
           <span class="text-xs font-semibold uppercase tracking-wide text-forest-600">
-            {t("auditLog.actorFilter")}
+            {copy.auditLog.actorFilter}
           </span>
           <input
             type="search"
             class="focus-ring-flat w-full rounded-lg border-2 border-cream-200 bg-white px-3 py-2 text-sm text-forest-800"
-            placeholder={t("auditLog.actorPlaceholder")}
+            placeholder={copy.auditLog.actorPlaceholder}
             value={filters.actor}
             onInput={(event) => setFilters("actor", event.currentTarget.value)}
           />
@@ -165,7 +153,7 @@ export default function AuditLogPage() {
 
         <label class="space-y-1">
           <span class="text-xs font-semibold uppercase tracking-wide text-forest-600">
-            {t("auditLog.fromFilter")}
+            {copy.auditLog.fromFilter}
           </span>
           <input
             type="date"
@@ -177,7 +165,7 @@ export default function AuditLogPage() {
 
         <label class="space-y-1">
           <span class="text-xs font-semibold uppercase tracking-wide text-forest-600">
-            {t("auditLog.toFilter")}
+            {copy.auditLog.toFilter}
           </span>
           <input
             type="date"
@@ -199,7 +187,7 @@ export default function AuditLogPage() {
             class="text-sm font-semibold text-forest-600 underline hover:text-forest-800"
             onClick={retry}
           >
-            {t("auditLog.retry")}
+            {copy.auditLog.retry}
           </button>
         </div>
       </Show>
@@ -211,19 +199,19 @@ export default function AuditLogPage() {
               <thead class="border-b border-cream-200 bg-cream-50">
                 <tr class="text-left text-xs font-semibold uppercase tracking-wide text-forest-600">
                   <th scope="col" class="px-6 py-3">
-                    {t("auditLog.colWhen")}
+                    {copy.auditLog.colWhen}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("auditLog.colAction")}
+                    {copy.auditLog.colAction}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("auditLog.colActor")}
+                    {copy.auditLog.colActor}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("auditLog.colResource")}
+                    {copy.auditLog.colResource}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("auditLog.colIp")}
+                    {copy.auditLog.colIp}
                   </th>
                 </tr>
               </thead>
@@ -233,7 +221,7 @@ export default function AuditLogPage() {
                   fallback={
                     <tr>
                       <td colSpan={5} class="px-6 py-12 text-center text-sm text-forest-600">
-                        {t("auditLog.empty")}
+                        {copy.auditLog.empty}
                       </td>
                     </tr>
                   }
@@ -242,7 +230,7 @@ export default function AuditLogPage() {
                     {(event) => (
                       <tr class="transition-standard hover:bg-cream-50">
                         <td class="px-6 py-4 text-sm text-forest-700">
-                          {formatDate(event.createdAt)}
+                          {formatDateTime(event.createdAt)}
                         </td>
                         <td class="px-6 py-4 text-sm font-medium text-forest-900">
                           {actionLabel(event.action)}
@@ -274,17 +262,7 @@ export default function AuditLogPage() {
                   if (page() !== 1) setPage(1);
                 }}
                 showLimitSelector
-                labels={{
-                  showing: t("auditLog.paginationShowing"),
-                  previous: t("auditLog.paginationPrevious"),
-                  next: t("auditLog.paginationNext"),
-                  pageOf: (current, total) =>
-                    t("auditLog.paginationPageOf")
-                      .replace("{page}", String(current))
-                      .replace("{total}", String(total)),
-                  perPage: (value) =>
-                    t("auditLog.paginationPerPage").replace("{limit}", String(value)),
-                }}
+                labels={paginationLabels(copy.auditLog)}
               />
             )}
           </Show>

@@ -1,3 +1,5 @@
+import { copy } from "~/copy";
+import { formatDate, paginationLabels } from "~/copy/format";
 import { A, createAsync } from "@solidjs/router";
 import {
   createDeferred,
@@ -16,7 +18,6 @@ import type {
   OAuthClientSummary,
   PaginatedResult,
 } from "~/lib/api/types";
-import { useI18n } from "~/i18n";
 
 function ClientsTableSkeleton() {
   return (
@@ -48,8 +49,7 @@ function StatusBadge(props: { status: OAuthClientStatus; label: string }) {
 }
 
 export default function ClientsPage() {
-  const { t, locale } = useI18n();
-  const [page, setPage] = createSignal(1);
+    const [page, setPage] = createSignal(1);
   const [limit, setLimit] = createSignal(20);
   const [filters, setFilters] = createStore({
     search: "",
@@ -71,7 +71,7 @@ export default function ClientsPage() {
         });
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : t("clients.loadFailed");
+          error instanceof Error ? error.message : copy.clients.loadFailed;
         setLoadError(message);
         return undefined;
       }
@@ -112,18 +112,11 @@ export default function ClientsPage() {
     );
   });
 
-  const formatDate = (value: string) =>
-    new Date(value).toLocaleDateString(locale(), {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-
   const clientTypeLabel = (type: OAuthClientSummary["clientType"]) =>
-    type === "public" ? t("clients.typePublic") : t("clients.typeConfidential");
+    type === "public" ? copy.clients.typePublic : copy.clients.typeConfidential;
 
   const statusLabel = (status: OAuthClientStatus) =>
-    status === "active" ? t("clients.statusActive") : t("clients.statusDisabled");
+    status === "active" ? copy.clients.statusActive : copy.clients.statusDisabled;
 
   const retry = () => setReloadKey((current) => current + 1);
 
@@ -131,22 +124,22 @@ export default function ClientsPage() {
     <div class="space-y-6">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
-          <h1 class="h3">{t("admin.clients")}</h1>
-          <p class="text-forest-700">{t("admin.clientsBlurb")}</p>
+          <h1 class="h3">{copy.admin.clients}</h1>
+          <p class="text-forest-700">{copy.admin.clientsBlurb}</p>
         </div>
         <A href="/clients/new">
-          <Button>{t("clients.create")}</Button>
+          <Button>{copy.clients.create}</Button>
         </A>
       </div>
 
       <div class="flat-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
         <input
           type="search"
-          placeholder={t("clients.searchPlaceholder")}
+          placeholder={copy.clients.searchPlaceholder}
           class="focus-ring-flat w-full rounded-lg border-2 border-cream-200 bg-white px-3 py-2 text-sm text-forest-800 sm:max-w-sm"
           value={filters.search}
           onInput={(event) => setFilters("search", event.currentTarget.value)}
-          aria-label={t("clients.searchPlaceholder")}
+          aria-label={copy.clients.searchPlaceholder}
         />
 
         <select
@@ -155,11 +148,11 @@ export default function ClientsPage() {
           onChange={(event) =>
             setFilters("status", event.currentTarget.value as "" | OAuthClientStatus)
           }
-          aria-label={t("clients.statusFilter")}
+          aria-label={copy.clients.statusFilter}
         >
-          <option value="">{t("clients.statusAll")}</option>
-          <option value="active">{t("clients.statusActive")}</option>
-          <option value="disabled">{t("clients.statusDisabled")}</option>
+          <option value="">{copy.clients.statusAll}</option>
+          <option value="active">{copy.clients.statusActive}</option>
+          <option value="disabled">{copy.clients.statusDisabled}</option>
         </select>
       </div>
 
@@ -174,7 +167,7 @@ export default function ClientsPage() {
             class="text-sm font-semibold text-forest-600 underline hover:text-forest-800"
             onClick={retry}
           >
-            {t("clients.retry")}
+            {copy.clients.retry}
           </button>
         </div>
       </Show>
@@ -186,22 +179,22 @@ export default function ClientsPage() {
               <thead class="border-b border-cream-200 bg-cream-50">
                 <tr class="text-left text-xs font-semibold uppercase tracking-wide text-forest-600">
                   <th scope="col" class="px-6 py-3">
-                    {t("clients.colName")}
+                    {copy.clients.colName}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("clients.colClientId")}
+                    {copy.clients.colClientId}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("clients.colType")}
+                    {copy.clients.colType}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("clients.colStatus")}
+                    {copy.clients.colStatus}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    {t("clients.colCreated")}
+                    {copy.clients.colCreated}
                   </th>
                   <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">{t("clients.colActions")}</span>
+                    <span class="sr-only">{copy.clients.colActions}</span>
                   </th>
                 </tr>
               </thead>
@@ -211,7 +204,7 @@ export default function ClientsPage() {
                   fallback={
                     <tr>
                       <td colSpan={6} class="px-6 py-12 text-center text-sm text-forest-600">
-                        {t("clients.empty")}
+                        {copy.clients.empty}
                       </td>
                     </tr>
                   }
@@ -249,7 +242,7 @@ export default function ClientsPage() {
                             href={`/clients/${client.id}`}
                             class="rounded text-sm font-semibold text-forest-600 underline-offset-2 hover:text-forest-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-500"
                           >
-                            {t("clients.view")}
+                            {copy.clients.view}
                           </A>
                         </td>
                       </tr>
@@ -270,17 +263,7 @@ export default function ClientsPage() {
                   if (page() !== 1) setPage(1);
                 }}
                 showLimitSelector
-                labels={{
-                  showing: t("clients.paginationShowing"),
-                  previous: t("clients.paginationPrevious"),
-                  next: t("clients.paginationNext"),
-                  pageOf: (current, total) =>
-                    t("clients.paginationPageOf")
-                      .replace("{page}", String(current))
-                      .replace("{total}", String(total)),
-                  perPage: (value) =>
-                    t("clients.paginationPerPage").replace("{limit}", String(value)),
-                }}
+                labels={paginationLabels(copy.clients)}
               />
             )}
           </Show>

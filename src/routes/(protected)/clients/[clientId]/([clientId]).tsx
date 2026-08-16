@@ -1,3 +1,6 @@
+import { copy } from "~/copy";
+import { clientAuditActionLabel } from "~/copy/audit";
+import { formatDateTime } from "~/copy/format";
 import { action, createAsync, useAction, useParams, useSubmission, A } from "@solidjs/router";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { createForm, setError, setValue, type FieldValues, type FormStore } from "@modular-forms/solid";
@@ -6,7 +9,6 @@ import { Button, FieldGroup, Input, LoadingFallback, Modal } from "~/components/
 import { applyApiErrorToForm } from "~/lib/api/map-api-errors";
 import { clientsApi } from "~/lib/api/clients.api";
 import type { AuditEventSummary, OAuthClientDetail, UpdateOAuthClientDto } from "~/lib/api/types";
-import { useI18n } from "~/i18n";
 import { OAUTH_SCOPES } from "~/schemas/create-client.schema";
 import {
   buildUpdateClientPayload,
@@ -37,8 +39,7 @@ const enableClientAction = action(async (id: string) => {
 }, "admin-enable-oauth-client");
 
 export default function ClientDetailPage() {
-  const { t, locale } = useI18n();
-  const params = useParams();
+    const params = useParams();
   const clientId = () => params.clientId!;
 
   const [refreshKey, setRefreshKey] = createSignal(0);
@@ -139,18 +140,9 @@ export default function ClientDetailPage() {
     setFormError(
       updateSubmission.error instanceof Error
         ? updateSubmission.error.message
-        : t("clientsDetail.updateFailed"),
+        : copy.clientsDetail.updateFailed,
     );
   });
-
-  const formatDate = (value: string) =>
-    new Date(value).toLocaleString(locale(), {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
 
   const toggleScope = (scope: string, checked: boolean) => {
     setSelectedScopes((current) => {
@@ -209,11 +201,11 @@ export default function ClientDetailPage() {
     <div class="space-y-6">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div class="space-y-1">
-          <h1 class="h3">{t("clientsDetail.title")}</h1>
-          <p class="text-forest-700">{t("clientsDetail.subtitle")}</p>
+          <h1 class="h3">{copy.clientsDetail.title}</h1>
+          <p class="text-forest-700">{copy.clientsDetail.subtitle}</p>
         </div>
         <A href="/clients" class="text-sm font-semibold text-forest-600 hover:text-forest-800">
-          {t("clientsCreate.backToList")}
+          {copy.clientsCreate.backToList}
         </A>
       </div>
 
@@ -229,8 +221,8 @@ export default function ClientDetailPage() {
                       status={detail().status}
                       label={
                         detail().status === "active"
-                          ? t("clients.statusActive")
-                          : t("clients.statusDisabled")
+                          ? copy.clients.statusActive
+                          : copy.clients.statusDisabled
                       }
                     />
                   </div>
@@ -240,7 +232,7 @@ export default function ClientDetailPage() {
                 <Show when={!isEditing()}>
                   <div class="flex flex-wrap gap-2">
                     <Button type="button" variant="outline" onClick={startEditing}>
-                      {t("clientsDetail.edit")}
+                      {copy.clientsDetail.edit}
                     </Button>
                     <Show
                       when={detail().status === "active"}
@@ -250,7 +242,7 @@ export default function ClientDetailPage() {
                           onClick={() => setShowEnableModal(true)}
                           loading={enableSubmission.pending}
                         >
-                          {t("clientsDetail.enable")}
+                          {copy.clientsDetail.enable}
                         </Button>
                       }
                     >
@@ -260,7 +252,7 @@ export default function ClientDetailPage() {
                         onClick={() => setShowDisableModal(true)}
                         loading={disableSubmission.pending}
                       >
-                        {t("clientsDetail.disable")}
+                        {copy.clientsDetail.disable}
                       </Button>
                     </Show>
                   </div>
@@ -269,9 +261,7 @@ export default function ClientDetailPage() {
 
               <Show
                 when={isEditing()}
-                fallback={
-                  <ClientSummaryView detail={detail()} formatDate={formatDate} t={t} />
-                }
+                fallback={<ClientSummaryView detail={detail()} />}
               >
                 <Show when={formError()}>
                   <div
@@ -285,7 +275,7 @@ export default function ClientDetailPage() {
                 <Form onSubmit={handleUpdateSubmit} class="space-y-6">
                   <Field name="name">
                     {(field, props) => (
-                      <FieldGroup label={t("clientsCreate.name")} requirement="required" error={field.error}>
+                      <FieldGroup label={copy.clientsCreate.name} requirement="required" error={field.error}>
                         <Input {...props} value={field.value || ""} disabled={updateSubmission.pending} />
                       </FieldGroup>
                     )}
@@ -294,7 +284,7 @@ export default function ClientDetailPage() {
                   <Field name="description">
                     {(field, props) => (
                       <FieldGroup
-                        label={t("clientsCreate.description")}
+                        label={copy.clientsCreate.description}
                         requirement="optional"
                         error={field.error}
                       >
@@ -310,7 +300,7 @@ export default function ClientDetailPage() {
                   </Field>
 
                   <UriListField
-                    label={t("clientsCreate.redirectUris")}
+                    label={copy.clientsCreate.redirectUris}
                     requirement="required"
                     values={redirectUris()}
                     onChange={setRedirectUris}
@@ -318,7 +308,7 @@ export default function ClientDetailPage() {
                     disabled={updateSubmission.pending}
                   />
                   <UriListField
-                    label={t("clientsCreate.postLogoutUris")}
+                    label={copy.clientsCreate.postLogoutUris}
                     requirement="optional"
                     values={postLogoutUris()}
                     onChange={setPostLogoutUris}
@@ -326,7 +316,7 @@ export default function ClientDetailPage() {
                     disabled={updateSubmission.pending}
                   />
                   <UriListField
-                    label={t("clientsCreate.allowedOrigins")}
+                    label={copy.clientsCreate.allowedOrigins}
                     requirement="optional"
                     values={allowedOrigins()}
                     onChange={setAllowedOrigins}
@@ -334,7 +324,7 @@ export default function ClientDetailPage() {
                     disabled={updateSubmission.pending}
                   />
 
-                  <FieldGroup label={t("clientsCreate.scopes")} requirement="required">
+                  <FieldGroup label={copy.clientsCreate.scopes} requirement="required">
                     <div class="flex flex-wrap gap-4">
                       <For each={[...OAUTH_SCOPES]}>
                         {(scope) => (
@@ -355,7 +345,7 @@ export default function ClientDetailPage() {
                     </div>
                   </FieldGroup>
 
-                  <FieldGroup label={t("clientsCreate.pkceRequired")} requirement="optional">
+                  <FieldGroup label={copy.clientsCreate.pkceRequired} requirement="optional">
                     <label class="inline-flex items-center gap-2 text-sm text-forest-800">
                       <input
                         type="checkbox"
@@ -366,15 +356,15 @@ export default function ClientDetailPage() {
                         }
                         onChange={(event) => setPkceRequired(event.currentTarget.checked)}
                       />
-                      {t("clientsCreate.pkceEnabled")}
+                      {copy.clientsCreate.pkceEnabled}
                     </label>
                   </FieldGroup>
 
                   <div class="flex gap-3">
                     <Button type="submit" loading={updateSubmission.pending}>
                       {updateSubmission.pending
-                        ? t("clientsDetail.saving")
-                        : t("clientsDetail.save")}
+                        ? copy.clientsDetail.saving
+                        : copy.clientsDetail.save}
                     </Button>
                     <Button
                       type="button"
@@ -382,7 +372,7 @@ export default function ClientDetailPage() {
                       disabled={updateSubmission.pending}
                       onClick={cancelEditing}
                     >
-                      {t("clientsDetail.cancel")}
+                      {copy.clientsDetail.cancel}
                     </Button>
                   </div>
                 </Form>
@@ -391,8 +381,6 @@ export default function ClientDetailPage() {
 
             <AuditSection
               events={auditEvents()}
-              formatDate={formatDate}
-              t={t}
               loading={auditEvents() === undefined}
             />
           </>
@@ -402,41 +390,41 @@ export default function ClientDetailPage() {
       <Modal
         show={showDisableModal()}
         onClose={() => setShowDisableModal(false)}
-        title={t("clientsDetail.disableTitle")}
+        title={copy.clientsDetail.disableTitle}
         footer={
           <>
             <Button variant="outline" onClick={() => setShowDisableModal(false)}>
-              {t("clientsDetail.cancel")}
+              {copy.clientsDetail.cancel}
             </Button>
             <Button
               variant="destructive"
               loading={disableSubmission.pending}
               onClick={() => disableTrigger(clientId())}
             >
-              {t("clientsDetail.disableConfirm")}
+              {copy.clientsDetail.disableConfirm}
             </Button>
           </>
         }
       >
-        <p class="text-sm text-forest-700">{t("clientsDetail.disableBody")}</p>
+        <p class="text-sm text-forest-700">{copy.clientsDetail.disableBody}</p>
       </Modal>
 
       <Modal
         show={showEnableModal()}
         onClose={() => setShowEnableModal(false)}
-        title={t("clientsDetail.enableTitle")}
+        title={copy.clientsDetail.enableTitle}
         footer={
           <>
             <Button variant="outline" onClick={() => setShowEnableModal(false)}>
-              {t("clientsDetail.cancel")}
+              {copy.clientsDetail.cancel}
             </Button>
             <Button loading={enableSubmission.pending} onClick={() => enableTrigger(clientId())}>
-              {t("clientsDetail.enableConfirm")}
+              {copy.clientsDetail.enableConfirm}
             </Button>
           </>
         }
       >
-        <p class="text-sm text-forest-700">{t("clientsDetail.enableBody")}</p>
+        <p class="text-sm text-forest-700">{copy.clientsDetail.enableBody}</p>
       </Modal>
     </div>
   );
@@ -455,54 +443,50 @@ function StatusBadge(props: { status: "active" | "disabled"; label: string }) {
   );
 }
 
-function ClientSummaryView(props: {
-  detail: OAuthClientDetail;
-  formatDate: (value: string) => string;
-  t: (key: string) => string;
-}) {
-  const { detail, formatDate, t } = props;
+function ClientSummaryView(props: { detail: OAuthClientDetail }) {
+  const { detail } = props;
 
   return (
     <div class="space-y-6">
       <div class="grid gap-4 sm:grid-cols-2">
-        <SummaryField label={t("clients.colType")}>
+        <SummaryField label={copy.clients.colType}>
           {detail.clientType === "public"
-            ? t("clients.typePublic")
-            : t("clients.typeConfidential")}
+            ? copy.clients.typePublic
+            : copy.clients.typeConfidential}
         </SummaryField>
-        <SummaryField label={t("clients.colCreated")}>
-          {formatDate(detail.createdAt)}
+        <SummaryField label={copy.clients.colCreated}>
+          {formatDateTime(detail.createdAt)}
         </SummaryField>
-        <SummaryField label={t("clientsCreate.pkceRequired")}>
-          {detail.pkceRequired ? t("clientsDetail.yes") : t("clientsDetail.no")}
+        <SummaryField label={copy.clientsCreate.pkceRequired}>
+          {detail.pkceRequired ? copy.clientsDetail.yes : copy.clientsDetail.no}
         </SummaryField>
       </div>
 
       <Show when={detail.description}>
         {(description) => (
-          <SummaryField label={t("clientsCreate.description")}>{description()}</SummaryField>
+          <SummaryField label={copy.clientsCreate.description}>{description()}</SummaryField>
         )}
       </Show>
 
       <UriSection
-        title={t("clientsCreate.redirectUris")}
+        title={copy.clientsCreate.redirectUris}
         values={detail.redirectUris ?? []}
-        emptyLabel={t("clientsDetail.none")}
+        emptyLabel={copy.clientsDetail.none}
       />
       <UriSection
-        title={t("clientsCreate.postLogoutUris")}
+        title={copy.clientsCreate.postLogoutUris}
         values={detail.postLogoutRedirectUris ?? []}
-        emptyLabel={t("clientsDetail.none")}
+        emptyLabel={copy.clientsDetail.none}
       />
       <UriSection
-        title={t("clientsCreate.allowedOrigins")}
+        title={copy.clientsCreate.allowedOrigins}
         values={detail.allowedOrigins ?? []}
-        emptyLabel={t("clientsDetail.none")}
+        emptyLabel={copy.clientsDetail.none}
       />
 
       <div>
         <p class="text-xs font-semibold uppercase tracking-wide text-forest-600">
-          {t("clientsCreate.scopes")}
+          {copy.clientsCreate.scopes}
         </p>
         <div class="mt-2 flex flex-wrap gap-2">
           <For each={detail.scopes}>
@@ -551,26 +535,18 @@ function UriSection(props: { title: string; values: string[]; emptyLabel: string
 
 function AuditSection(props: {
   events: AuditEventSummary[] | undefined;
-  formatDate: (value: string) => string;
-  t: (key: string) => string;
   loading: boolean;
 }) {
-  const actionLabel = (action: string) => {
-    const key = `clientsDetail.audit.${action}`;
-    const translated = props.t(key);
-    return translated === key ? action : translated;
-  };
-
   return (
     <div class="flat-card p-6">
-      <h2 class="h5">{props.t("clientsDetail.auditTitle")}</h2>
-      <p class="mt-1 text-sm text-forest-600">{props.t("clientsDetail.auditSubtitle")}</p>
+      <h2 class="h5">{copy.clientsDetail.auditTitle}</h2>
+      <p class="mt-1 text-sm text-forest-600">{copy.clientsDetail.auditSubtitle}</p>
 
       <Show when={!props.loading} fallback={<LoadingFallback fullScreen={false} />}>
         <Show
           when={props.events && props.events.length > 0}
           fallback={
-            <p class="mt-4 text-sm text-forest-600">{props.t("clientsDetail.auditEmpty")}</p>
+            <p class="mt-4 text-sm text-forest-600">{copy.clientsDetail.auditEmpty}</p>
           }
         >
           <div class="mt-4 overflow-x-auto">
@@ -578,13 +554,13 @@ function AuditSection(props: {
               <thead class="border-b border-cream-200 bg-cream-50">
                 <tr class="text-left text-xs font-semibold uppercase tracking-wide text-forest-600">
                   <th scope="col" class="px-4 py-3">
-                    {props.t("clientsDetail.auditWhen")}
+                    {copy.clientsDetail.auditWhen}
                   </th>
                   <th scope="col" class="px-4 py-3">
-                    {props.t("clientsDetail.auditAction")}
+                    {copy.clientsDetail.auditAction}
                   </th>
                   <th scope="col" class="px-4 py-3">
-                    {props.t("clientsDetail.auditActor")}
+                    {copy.clientsDetail.auditActor}
                   </th>
                 </tr>
               </thead>
@@ -593,10 +569,10 @@ function AuditSection(props: {
                   {(event) => (
                     <tr>
                       <td class="px-4 py-3 text-sm text-forest-700">
-                        {props.formatDate(event.createdAt)}
+                        {formatDateTime(event.createdAt)}
                       </td>
                       <td class="px-4 py-3 text-sm text-forest-900">
-                        {actionLabel(event.action)}
+                        {clientAuditActionLabel(event.action)}
                       </td>
                       <td class="px-4 py-3 text-sm text-forest-700">
                         {event.actorType}

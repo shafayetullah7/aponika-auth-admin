@@ -1,4 +1,5 @@
 import type { Component } from "solid-js";
+import { copy } from "~/copy";
 import type { IconProps } from "~/components/icons";
 import {
   AuditIcon,
@@ -11,19 +12,19 @@ export type NavMatch = "exact" | "prefix";
 
 export interface AdminNavItem {
   href: string;
-  labelKey: string;
+  label: string;
   icon: Component<IconProps>;
   match: NavMatch;
 }
 
 export const adminNavItems: AdminNavItem[] = [
-  { href: "/", labelKey: "admin.dashboard", icon: DashboardIcon, match: "exact" },
-  { href: "/users", labelKey: "admin.users", icon: UsersIcon, match: "prefix" },
+  { href: "/", label: copy.admin.dashboard, icon: DashboardIcon, match: "exact" },
+  { href: "/users", label: copy.admin.users, icon: UsersIcon, match: "prefix" },
   {
     href: "/clients",
-    labelKey: "admin.clients",
+    label: copy.admin.clients,
     icon: ClientsIcon,
     match: "prefix",
   },
-  { href: "/audit", labelKey: "admin.audit", icon: AuditIcon, match: "prefix" },
+  { href: "/audit", label: copy.admin.audit, icon: AuditIcon, match: "prefix" },
 ];

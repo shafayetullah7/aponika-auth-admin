@@ -15,7 +15,7 @@ import {
   buildAuthPathWithReturnTo,
   safeReturnTo,
 } from "~/lib/auth/return-to";
-import { useI18n } from "~/i18n";
+import { copy } from "~/copy";
 import { loginSchema, type LoginFormData } from "~/schemas/login.schema";
 
 const loginAction = action(async (data: LoginFormData & { returnTo?: string }) => {
@@ -32,7 +32,6 @@ const loginAction = action(async (data: LoginFormData & { returnTo?: string }) =
 }, "admin-login");
 
 export default function AdminLoginPage() {
-  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const loginTrigger = useAction(loginAction);
   const submission = useSubmission(loginAction);
@@ -62,7 +61,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    setErrorMessage(error.message || t("admin.loginFailed"));
+    setErrorMessage(error.message || copy.admin.loginFailed);
   });
 
   createEffect(() => {
@@ -85,13 +84,13 @@ export default function AdminLoginPage() {
   return (
     <main class="flex min-h-screen items-center justify-center bg-forest-950 p-4">
       <Card class="w-full max-w-md">
-        <h1 class="h3 text-center">{t("admin.signIn")}</h1>
-        <p class="mt-2 text-center text-forest-600">{t("admin.signInSubtitle")}</p>
+        <h1 class="h3 text-center">{copy.admin.signIn}</h1>
+        <p class="mt-2 text-center text-forest-600">{copy.admin.signInSubtitle}</p>
 
         <Form onSubmit={handleSubmit} class="mt-8 space-y-4">
           <Show when={searchParams.registered === "1"}>
             <div class="rounded-xl border border-forest-200 bg-forest-50 px-4 py-3 text-sm text-forest-800">
-              {t("admin.registeredBanner")}
+              {copy.admin.registeredBanner}
             </div>
           </Show>
 
@@ -104,9 +103,9 @@ export default function AdminLoginPage() {
           <Field name="email">
             {(field, props) => (
               <FieldGroup
-                label={t("admin.email")}
+                label={copy.admin.email}
                 requirement="required"
-                hint={t("admin.emailHint")}
+                hint={copy.admin.emailHint}
                 error={field.error}
               >
                 <Input
@@ -126,7 +125,7 @@ export default function AdminLoginPage() {
           <Field name="password">
             {(field, props) => (
               <FieldGroup
-                label={t("admin.password")}
+                label={copy.admin.password}
                 requirement="required"
                 error={field.error}
               >
@@ -136,8 +135,8 @@ export default function AdminLoginPage() {
                   placeholder="••••••••"
                   value={field.value || ""}
                   error={field.error}
-                  showPasswordLabel={t("admin.showPassword")}
-                  hidePasswordLabel={t("admin.hidePassword")}
+                  showPasswordLabel={copy.admin.showPassword}
+                  hidePasswordLabel={copy.admin.hidePassword}
                   disabled={submission.pending}
                 />
               </FieldGroup>
@@ -145,7 +144,7 @@ export default function AdminLoginPage() {
           </Field>
 
           <Button type="submit" class="w-full" loading={submission.pending}>
-            {submission.pending ? t("admin.signingIn") : t("admin.signIn")}
+            {submission.pending ? copy.admin.signingIn : copy.admin.signIn}
           </Button>
         </Form>
 
@@ -154,9 +153,9 @@ export default function AdminLoginPage() {
         </div>
 
         <p class="mt-6 text-center text-sm text-forest-600">
-          {t("admin.needAccount")}{" "}
+          {copy.admin.needAccount}{" "}
           <A href={registerHref()} class="font-semibold text-forest-700 hover:text-forest-900">
-            {t("admin.registerLink")}
+            {copy.admin.registerLink}
           </A>
         </p>
       </Card>

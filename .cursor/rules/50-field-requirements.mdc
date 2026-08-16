@@ -11,8 +11,8 @@ Use `FieldGroup` from `~/components/ui/FieldGroup` when UI primitives exist (Pha
 | `requirement` | Label marker |
 |---------------|--------------|
 | `required` | red `*` |
-| `optional` | gray `(Optional)` via `common.optional` |
-| `requiredForReview` | gray via `common.requiredForReview` |
+| `optional` | gray `(Optional)` via `~/copy/labels` |
+| `requiredForReview` | gray via `~/copy/labels` |
 
 Default when omitted: `required`.
 

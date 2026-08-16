@@ -1,3 +1,5 @@
+import { copy } from "~/copy";
+import { formatDateTime as formatDateTimeValue, paginationLabels } from "~/copy/format";
 import {
   action,
   A,
@@ -15,7 +17,6 @@ import type {
   PlatformUserSessionStatus,
   PlatformUserStatus,
 } from "~/lib/api/types";
-import { useI18n } from "~/i18n";
 
 const suspendUserAction = action(async (id: string) => {
   "use server";
@@ -36,8 +37,7 @@ const revokeSessionAction = action(async (input: { userId: string; sessionId: st
 }, "admin-revoke-user-session");
 
 export default function UserDetailPage() {
-  const { t, locale } = useI18n();
-  const params = useParams();
+    const params = useParams();
   const userId = () => params.userId!;
 
   const [refreshKey, setRefreshKey] = createSignal(0);
@@ -89,32 +89,26 @@ export default function UserDetailPage() {
       suspendSubmission.error ?? activateSubmission.error ?? revokeSubmission.error;
     if (!error) return;
     setActionError(
-      error instanceof Error ? error.message : t("usersDetail.actionFailed"),
+      error instanceof Error ? error.message : copy.usersDetail.actionFailed,
     );
   });
 
-  const formatDate = (value: string | null) => {
-    if (!value) return t("usersDetail.never");
-    return new Date(value).toLocaleString(locale(), {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formatDateTime = (value: string | null) => {
+    if (!value) return copy.usersDetail.never;
+    return formatDateTimeValue(value);
   };
 
   const statusLabel = (status: PlatformUserStatus) =>
-    status === "ACTIVE" ? t("users.statusActive") : t("users.statusSuspended");
+    status === "ACTIVE" ? copy.users.statusActive : copy.users.statusSuspended;
 
   const sessionStatusLabel = (status: PlatformUserSessionStatus) => {
     switch (status) {
       case "active":
-        return t("usersDetail.sessionActive");
+        return copy.usersDetail.sessionActive;
       case "revoked":
-        return t("usersDetail.sessionRevoked");
+        return copy.usersDetail.sessionRevoked;
       case "expired":
-        return t("usersDetail.sessionExpired");
+        return copy.usersDetail.sessionExpired;
     }
   };
 
@@ -123,18 +117,18 @@ export default function UserDetailPage() {
     if (typeof userAgent === "string" && userAgent.length > 0) {
       return userAgent.length > 72 ? `${userAgent.slice(0, 72)}…` : userAgent;
     }
-    return t("usersDetail.deviceUnknown");
+    return copy.usersDetail.deviceUnknown;
   };
 
   return (
     <div class="space-y-6">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div class="space-y-1">
-          <h1 class="h3">{t("usersDetail.title")}</h1>
-          <p class="text-forest-700">{t("usersDetail.subtitle")}</p>
+          <h1 class="h3">{copy.usersDetail.title}</h1>
+          <p class="text-forest-700">{copy.usersDetail.subtitle}</p>
         </div>
         <A href="/users" class="text-sm font-semibold text-forest-600 hover:text-forest-800">
-          {t("usersDetail.backToList")}
+          {copy.usersDetail.backToList}
         </A>
       </div>
 
@@ -166,7 +160,7 @@ export default function UserDetailPage() {
                       onClick={() => setShowActivateModal(true)}
                       loading={activateSubmission.pending}
                     >
-                      {t("usersDetail.activate")}
+                      {copy.usersDetail.activate}
                     </Button>
                   }
                 >
@@ -176,7 +170,7 @@ export default function UserDetailPage() {
                     onClick={() => setShowSuspendModal(true)}
                     loading={suspendSubmission.pending}
                   >
-                    {t("usersDetail.suspend")}
+                    {copy.usersDetail.suspend}
                   </Button>
                 </Show>
               </div>
@@ -192,25 +186,25 @@ export default function UserDetailPage() {
             </Show>
 
             <div class="grid gap-4 sm:grid-cols-2">
-              <SummaryField label={t("users.colVerified")}>
+              <SummaryField label={copy.users.colVerified}>
                 {detail().emailVerified
-                  ? t("users.verifiedYes")
-                  : t("users.verifiedNo")}
+                  ? copy.users.verifiedYes
+                  : copy.users.verifiedNo}
               </SummaryField>
-              <SummaryField label={t("users.colCreated")}>
-                {formatDate(detail().createdAt)}
+              <SummaryField label={copy.users.colCreated}>
+                {formatDateTime(detail().createdAt)}
               </SummaryField>
-              <SummaryField label={t("usersDetail.lastLogin")}>
-                {formatDate(detail().lastLoginAt)}
+              <SummaryField label={copy.usersDetail.lastLogin}>
+                {formatDateTime(detail().lastLoginAt)}
               </SummaryField>
-              <SummaryField label={t("usersDetail.sessions")}>
+              <SummaryField label={copy.usersDetail.sessions}>
                 {String(detail().sessionCount)}
               </SummaryField>
-              <SummaryField label={t("usersDetail.activeSessions")}>
+              <SummaryField label={copy.usersDetail.activeSessions}>
                 {String(detail().activeSessionCount)}
               </SummaryField>
-              <SummaryField label={t("usersDetail.updatedAt")}>
-                {formatDate(detail().updatedAt)}
+              <SummaryField label={copy.usersDetail.updatedAt}>
+                {formatDateTime(detail().updatedAt)}
               </SummaryField>
             </div>
           </div>
@@ -219,8 +213,8 @@ export default function UserDetailPage() {
 
       <section class="space-y-4">
         <div class="space-y-1">
-          <h2 class="h5">{t("usersDetail.sessionsTitle")}</h2>
-          <p class="text-sm text-forest-700">{t("usersDetail.sessionsSubtitle")}</p>
+          <h2 class="h5">{copy.usersDetail.sessionsTitle}</h2>
+          <p class="text-sm text-forest-700">{copy.usersDetail.sessionsSubtitle}</p>
         </div>
 
         <Show when={sessions()} fallback={<LoadingFallback fullScreen={false} />}>
@@ -231,19 +225,19 @@ export default function UserDetailPage() {
                   <thead class="border-b border-cream-200 bg-cream-50">
                     <tr class="text-left text-xs font-semibold uppercase tracking-wide text-forest-600">
                       <th scope="col" class="px-6 py-3">
-                        {t("usersDetail.sessionCreated")}
+                        {copy.usersDetail.sessionCreated}
                       </th>
                       <th scope="col" class="px-6 py-3">
-                        {t("usersDetail.sessionIp")}
+                        {copy.usersDetail.sessionIp}
                       </th>
                       <th scope="col" class="px-6 py-3">
-                        {t("usersDetail.sessionDevice")}
+                        {copy.usersDetail.sessionDevice}
                       </th>
                       <th scope="col" class="px-6 py-3">
-                        {t("usersDetail.sessionStatus")}
+                        {copy.usersDetail.sessionStatus}
                       </th>
                       <th scope="col" class="px-6 py-3">
-                        <span class="sr-only">{t("users.colActions")}</span>
+                        <span class="sr-only">{copy.users.colActions}</span>
                       </th>
                     </tr>
                   </thead>
@@ -253,7 +247,7 @@ export default function UserDetailPage() {
                       fallback={
                         <tr>
                           <td colSpan={5} class="px-6 py-12 text-center text-sm text-forest-600">
-                            {t("usersDetail.sessionsEmpty")}
+                            {copy.usersDetail.sessionsEmpty}
                           </td>
                         </tr>
                       }
@@ -262,7 +256,7 @@ export default function UserDetailPage() {
                         {(session) => (
                           <tr class="hover:bg-cream-50">
                             <td class="px-6 py-4 text-sm text-forest-700">
-                              {formatDate(session.createdAt)}
+                              {formatDateTime(session.createdAt)}
                             </td>
                             <td class="px-6 py-4 text-sm text-forest-700">
                               {session.ip ?? "—"}
@@ -285,7 +279,7 @@ export default function UserDetailPage() {
                                   class="text-sm font-semibold text-terracotta-700 underline-offset-2 hover:underline"
                                   onClick={() => setRevokeTarget(session)}
                                 >
-                                  {t("usersDetail.revoke")}
+                                  {copy.usersDetail.revoke}
                                 </button>
                               </Show>
                             </td>
@@ -301,17 +295,7 @@ export default function UserDetailPage() {
                 <Pagination
                   meta={sessionList().meta}
                   onPageChange={setSessionsPage}
-                  labels={{
-                    showing: t("users.paginationShowing"),
-                    previous: t("users.paginationPrevious"),
-                    next: t("users.paginationNext"),
-                    pageOf: (current, total) =>
-                      t("users.paginationPageOf")
-                        .replace("{page}", String(current))
-                        .replace("{total}", String(total)),
-                    perPage: (value) =>
-                      t("users.paginationPerPage").replace("{limit}", String(value)),
-                  }}
+                  labels={paginationLabels(copy.users)}
                 />
               </Show>
             </div>
@@ -322,54 +306,54 @@ export default function UserDetailPage() {
       <Modal
         show={showSuspendModal()}
         onClose={() => setShowSuspendModal(false)}
-        title={t("usersDetail.suspendTitle")}
+        title={copy.usersDetail.suspendTitle}
         footer={
           <>
             <Button variant="outline" onClick={() => setShowSuspendModal(false)}>
-              {t("usersDetail.cancel")}
+              {copy.usersDetail.cancel}
             </Button>
             <Button
               variant="destructive"
               loading={suspendSubmission.pending}
               onClick={() => suspendTrigger(userId())}
             >
-              {t("usersDetail.suspendConfirm")}
+              {copy.usersDetail.suspendConfirm}
             </Button>
           </>
         }
       >
-        <p class="text-sm text-forest-700">{t("usersDetail.suspendBody")}</p>
+        <p class="text-sm text-forest-700">{copy.usersDetail.suspendBody}</p>
       </Modal>
 
       <Modal
         show={showActivateModal()}
         onClose={() => setShowActivateModal(false)}
-        title={t("usersDetail.activateTitle")}
+        title={copy.usersDetail.activateTitle}
         footer={
           <>
             <Button variant="outline" onClick={() => setShowActivateModal(false)}>
-              {t("usersDetail.cancel")}
+              {copy.usersDetail.cancel}
             </Button>
             <Button
               loading={activateSubmission.pending}
               onClick={() => activateTrigger(userId())}
             >
-              {t("usersDetail.activateConfirm")}
+              {copy.usersDetail.activateConfirm}
             </Button>
           </>
         }
       >
-        <p class="text-sm text-forest-700">{t("usersDetail.activateBody")}</p>
+        <p class="text-sm text-forest-700">{copy.usersDetail.activateBody}</p>
       </Modal>
 
       <Modal
         show={!!revokeTarget()}
         onClose={() => setRevokeTarget(null)}
-        title={t("usersDetail.revokeTitle")}
+        title={copy.usersDetail.revokeTitle}
         footer={
           <>
             <Button variant="outline" onClick={() => setRevokeTarget(null)}>
-              {t("usersDetail.cancel")}
+              {copy.usersDetail.cancel}
             </Button>
             <Button
               variant="destructive"
@@ -380,12 +364,12 @@ export default function UserDetailPage() {
                 revokeTrigger({ userId: userId(), sessionId: target.id });
               }}
             >
-              {t("usersDetail.revokeConfirm")}
+              {copy.usersDetail.revokeConfirm}
             </Button>
           </>
         }
       >
-        <p class="text-sm text-forest-700">{t("usersDetail.revokeBody")}</p>
+        <p class="text-sm text-forest-700">{copy.usersDetail.revokeBody}</p>
       </Modal>
     </div>
   );
