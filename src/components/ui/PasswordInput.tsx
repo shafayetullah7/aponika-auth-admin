@@ -1,4 +1,5 @@
 import { JSX, Show, createSignal, splitProps } from "solid-js";
+import { EyeIcon, EyeSlashIcon } from "~/components/icons";
 
 export interface PasswordInputProps
   extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "type"> {
@@ -29,12 +30,14 @@ export default function PasswordInput(props: PasswordInputProps) {
         />
         <button
           type="button"
-          class="absolute inset-y-0 right-0 flex items-center px-3 text-forest-500 hover:text-forest-700"
+          class="absolute inset-y-0 right-0 flex items-center px-3 text-forest-500 transition-colors hover:text-forest-700 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => setShowPassword((value) => !value)}
           aria-label={showPassword() ? "Hide password" : "Show password"}
-          tabindex={-1}
+          disabled={rest.disabled}
         >
-          {showPassword() ? "Hide" : "Show"}
+          <Show when={showPassword()} fallback={<EyeIcon class="size-5" />}>
+            <EyeSlashIcon class="size-5" />
+          </Show>
         </button>
       </div>
       <Show when={local.error}>
