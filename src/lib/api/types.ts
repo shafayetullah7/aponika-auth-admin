@@ -108,6 +108,48 @@ export interface ListOAuthClientsFilter {
   status?: OAuthClientStatus;
 }
 
+export type PlatformUserStatus = "ACTIVE" | "SUSPENDED";
+
+export interface PlatformUserSummary {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  displayName: string | null;
+  status: PlatformUserStatus;
+  createdAt: string;
+}
+
+export interface PlatformUserDetail extends PlatformUserSummary {
+  updatedAt: string;
+  sessionCount: number;
+  activeSessionCount: number;
+  lastLoginAt: string | null;
+}
+
+export interface ListPlatformUsersFilter {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: PlatformUserStatus;
+}
+
+export type PlatformUserSessionStatus = "active" | "revoked" | "expired";
+
+export interface PlatformUserSession {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  ip: string | null;
+  deviceInfo: Record<string, unknown>;
+  status: PlatformUserSessionStatus;
+}
+
+export interface ListPlatformUserSessionsFilter {
+  page?: number;
+  limit?: number;
+}
+
 export interface CreateOAuthClientDto {
   clientId: string;
   name: string;
@@ -139,7 +181,18 @@ export interface AuditEventSummary {
   actorType: string;
   actorId: string | null;
   action: string;
+  resourceType: string | null;
+  resourceId: string | null;
   metadata: Record<string, unknown> | null;
   ip: string | null;
   createdAt: string;
+}
+
+export interface ListAuditEventsFilter {
+  page?: number;
+  limit?: number;
+  action?: string;
+  actor?: string;
+  from?: string;
+  to?: string;
 }
