@@ -8,6 +8,7 @@ import {
   Show,
 } from "solid-js";
 import { createStore } from "solid-js/store";
+import { Button } from "~/components/ui";
 import { Pagination } from "~/components/ui/Pagination";
 import { clientsApi } from "~/lib/api/clients.api";
 import type {
@@ -128,9 +129,14 @@ export default function ClientsPage() {
 
   return (
     <div class="space-y-6">
-      <div class="space-y-1">
-        <h1 class="h3">{t("admin.clients")}</h1>
-        <p class="text-forest-700">{t("admin.clientsBlurb")}</p>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <h1 class="h3">{t("admin.clients")}</h1>
+          <p class="text-forest-700">{t("admin.clientsBlurb")}</p>
+        </div>
+        <A href="/clients/new">
+          <Button>{t("clients.create")}</Button>
+        </A>
       </div>
 
       <div class="flat-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center">

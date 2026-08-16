@@ -116,8 +116,8 @@ export interface CreateOAuthClientDto {
   redirectUris: string[];
   postLogoutRedirectUris?: string[];
   allowedOrigins?: string[];
-  grantTypes: string[];
-  responseTypes: string[];
+  grantTypes?: string[];
+  responseTypes?: string[];
   scopes: string[];
   pkceRequired?: boolean;
 }
