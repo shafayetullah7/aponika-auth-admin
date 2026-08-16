@@ -19,6 +19,8 @@ export const dict = {
     email: "ইমেইল",
     password: "পাসওয়ার্ড",
     confirmPassword: "পাসওয়ার্ড নিশ্চিত করুন",
+    showPassword: "পাসওয়ার্ড দেখান",
+    hidePassword: "পাসওয়ার্ড লুকান",
     firstName: "নামের প্রথম অংশ",
     lastName: "নামের শেষ অংশ",
     userName: "ইউজারনেম",

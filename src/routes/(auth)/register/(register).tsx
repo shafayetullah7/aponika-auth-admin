@@ -187,16 +187,36 @@ export default function RegisterPage() {
 
             <DetailsField name="password">
               {(field, props) => (
-                <FieldGroup label={t("admin.password")} requirement="required">
-                  <PasswordInput {...props} autocomplete="new-password" value={field.value || ""} error={field.error} disabled={requestOtpSubmission.pending} />
+                <FieldGroup
+                  label={t("admin.password")}
+                  requirement="required"
+                  error={field.error}
+                >
+                  <PasswordInput
+                    {...props}
+                    autocomplete="new-password"
+                    value={field.value || ""}
+                    error={field.error}
+                    disabled={requestOtpSubmission.pending}
+                  />
                 </FieldGroup>
               )}
             </DetailsField>
 
             <DetailsField name="confirmPassword">
               {(field, props) => (
-                <FieldGroup label={t("admin.confirmPassword")} requirement="required">
-                  <PasswordInput {...props} autocomplete="new-password" value={field.value || ""} error={field.error} disabled={requestOtpSubmission.pending} />
+                <FieldGroup
+                  label={t("admin.confirmPassword")}
+                  requirement="required"
+                  error={field.error}
+                >
+                  <PasswordInput
+                    {...props}
+                    autocomplete="new-password"
+                    value={field.value || ""}
+                    error={field.error}
+                    disabled={requestOtpSubmission.pending}
+                  />
                 </FieldGroup>
               )}
             </DetailsField>

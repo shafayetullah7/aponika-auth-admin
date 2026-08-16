@@ -1,12 +1,20 @@
 import { MetaProvider, Title } from "@solidjs/meta";
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { Suspense, onMount } from "solid-js";
+import { readStoredLocale } from "~/components/LocaleToggle";
 import { I18nContext, createI18n } from "~/i18n";
 import "./app.css";
 
 export default function App() {
   const i18n = createI18n("en");
+
+  onMount(() => {
+    const saved = readStoredLocale();
+    if (saved) {
+      i18n.setLocale(saved);
+    }
+  });
 
   return (
     <I18nContext.Provider value={i18n}>

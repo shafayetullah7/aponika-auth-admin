@@ -19,6 +19,8 @@ export const dict = {
     email: "Email",
     password: "Password",
     confirmPassword: "Confirm password",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     firstName: "First name",
     lastName: "Last name",
     userName: "Username",

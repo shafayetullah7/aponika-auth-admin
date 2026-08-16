@@ -7,6 +7,7 @@ import {
 } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { createForm } from "@modular-forms/solid";
+import { ApiHealthStatus } from "~/components/ApiHealthStatus";
 import { Button, Card, FieldGroup, Input, PasswordInput } from "~/components/ui";
 import { adminAuthApi } from "~/lib/api/admin-auth.api";
 import { ApiError } from "~/lib/api/types";
@@ -122,7 +123,11 @@ export default function AdminLoginPage() {
 
           <Field name="password">
             {(field, props) => (
-              <FieldGroup label={t("admin.password")} requirement="required">
+              <FieldGroup
+                label={t("admin.password")}
+                requirement="required"
+                error={field.error}
+              >
                 <PasswordInput
                   {...props}
                   autocomplete="current-password"
@@ -139,6 +144,10 @@ export default function AdminLoginPage() {
             {submission.pending ? t("admin.signingIn") : t("admin.signIn")}
           </Button>
         </Form>
+
+        <div class="mt-4">
+          <ApiHealthStatus />
+        </div>
 
         <p class="mt-6 text-center text-sm text-forest-600">
           {t("admin.needAccount")}{" "}
