@@ -29,9 +29,14 @@ export default function CreateClientPage() {
   const createTrigger = useAction(createClientAction);
   const submission = useSubmission(createClientAction);
 
-  const [redirectUris, setRedirectUris] = createSignal(["http://localhost:3000/auth/callback"]);
+  const [redirectUris, setRedirectUris] = createSignal([
+    "http://localhost:3005/api/v1/user/auth/oidc/callback",
+  ]);
   const [postLogoutUris, setPostLogoutUris] = createSignal(["http://localhost:3000/"]);
-  const [allowedOrigins, setAllowedOrigins] = createSignal(["http://localhost:3000"]);
+  const [allowedOrigins, setAllowedOrigins] = createSignal([
+    "http://localhost:3000",
+    "http://localhost:3005",
+  ]);
   const [selectedScopes, setSelectedScopes] = createSignal<string[]>([...OAUTH_SCOPES]);
   const [pkceRequired, setPkceRequired] = createSignal(true);
   const [uriErrors, setUriErrors] = createSignal<Record<string, string>>({});
@@ -245,7 +250,7 @@ export default function CreateClientPage() {
               values={redirectUris()}
               onChange={setRedirectUris}
               error={uriErrors().redirectUris}
-              placeholder="http://localhost:3000/auth/callback"
+              placeholder="http://localhost:3005/api/v1/user/auth/oidc/callback"
               disabled={submission.pending}
             />
 

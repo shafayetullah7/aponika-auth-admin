@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const OAUTH_SCOPES = ["openid", "profile", "email"] as const;
+export const OAUTH_SCOPES = [
+  "openid",
+  "profile",
+  "email",
+  "offline_access",
+] as const;
 
 const clientIdSchema = z
   .string()
